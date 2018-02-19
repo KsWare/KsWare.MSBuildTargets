@@ -11,6 +11,9 @@ Executes commands on build.
  - NuGet: auto increment CI version [e.g. 1.0.0-CI00001]
  - NuGet: supports install.ps1/uninstall.ps1 (also in VS 2017)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/rn94sivofrvc3uvf/branch/master?svg=true)](https://ci.appveyor.com/project/SchreinerK/ksware-msbuildtargets/branch/master)
+[![NuGet Badge](https://buildstats.info/nuget/KsWare.MSBuildTargets)](https://www.nuget.org/packages/KsWare.MSBuildTargets/)
+
 ##### *upcomming* Version 1.0.x
  - Public. 
  - Uses Semantic Versioning 2.0.0
@@ -86,6 +89,12 @@ Parameter are usually read from KsWare.MSBuildTargets.config and can also be ove
  - DONE include a template nuspec
  - DONE avoid use of Build Events
  - DONE avoid use of %PATH%, instead use tool directory
+
+## NuGet
+
+[KsWare.MSBuildTargets](https://www.nuget.org/packages/KsWare.MSBuildTargets/) 
+[![NuGet Badge](https://buildstats.info/nuget/KsWare.MSBuildTargets)](https://www.nuget.org/packages/KsWare.MSBuildTargets/)
+
 
 ## License
 
