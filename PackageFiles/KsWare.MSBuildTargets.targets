@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PrepareForRunDependsOn>
+      $(PrepareForRunDependsOn);
+      __BuildNuGetPackage;
+    </PrepareForRunDependsOn>
+  </PropertyGroup>
+  <Target Name="__BuildNuGetPackage" Condition="'$(Configuration)' == 'Debug' ">
+    <PropertyGroup>
+      <ThisFilePath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\tools\'))</ThisFilePath>
+      <NuGetCommand>$(ThisFilePath)KsWare.MSBuildTargets.exe</NuGetCommand>
+      <BuildCommand>"$(NuGetCommand)" -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)</BuildCommand>
+    </PropertyGroup>
+    <Message Text="$(BuildCommand)" Importance="High" />
+    <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" WorkingDirectory="$(ProjectDir)" />
+  </Target>
+</Project>

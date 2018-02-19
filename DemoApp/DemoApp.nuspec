@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package >
+	<!--
+	Any nuget reference you add will be included in the nuget package as a dependency without you
+	having to add it in here.
+	
+	For more info on how to compose a nuspec file see http://docs.nuget.org/create/nuspec-reference 
+	-->
+
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/$author$/$id$/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/$author$/$id$</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/$author$/$id$/master/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <developmentDependency>false</developmentDependency>
+    <releaseNotes>https://raw.githubusercontent.com/$author$/$id$/master/ReleaseNotes.md</releaseNotes>
+    <copyright>Copyright 2018 by $author$. All rights reserved.</copyright>
+    <tags>$author$</tags>
+  </metadata>
+</package>

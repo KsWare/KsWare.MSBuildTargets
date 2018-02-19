@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://raw.githubusercontent.com/$author$/$id$/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/$author$/$id$</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/$author$/$id$/master/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <developmentDependency>true</developmentDependency>
+    <releaseNotes>https://raw.githubusercontent.com/$author$/$id$/master/ReleaseNotes.md</releaseNotes>
+    <copyright>Copyright 2018 by $author$. All rights reserved.</copyright>
+    <tags>msbuild NuGet package visual-studio $author$</tags>
+  </metadata>
+  <files>
+    <file src="PackageFiles\KsWare.MSBuildTargets.targets" target="build" />
+
+    <file src="bin\release\NuGet.exe" target="tools" />
+	  <file src="PackageFiles\nuspec.template" target="tools" />
+    <file src="PackageFiles\KsWare.MSBuildTargets.sample.config" target="tools" />
+
+    <file src="PackageFiles\Install.ps1" target="tools" />
+    <!--<file src="PackageFiles\Uninstall.ps1" target="tools" />-->
+  </files>
+</package>
