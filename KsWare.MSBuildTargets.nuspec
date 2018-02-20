@@ -19,8 +19,8 @@
   <files>
     <file src="PackageFiles\KsWare.MSBuildTargets.targets" target="build" />
 
-    <file src="bin\release\NuGet.exe" target="tools" />
-	  <file src="PackageFiles\nuspec.template" target="tools" />
+    <file src="bin\Release\NuGet.exe" target="tools" />
+	<file src="PackageFiles\nuspec.template" target="tools" />
     <file src="PackageFiles\KsWare.MSBuildTargets.sample.config" target="tools" />
 
     <file src="PackageFiles\Install.ps1" target="tools" />

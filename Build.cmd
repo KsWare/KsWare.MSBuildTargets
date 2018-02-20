@@ -36,7 +36,12 @@ set EnableNuGetPackageRestore=true
 %nugetmsbuildpath% KsWare.MSBuildTargets.sln /p:Configuration="%ConfigurationName%" /p:Platform="Any CPU" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Detailed /nr:false 
 
 :: Create package 
-bin\%ConfigurationName%\KsWare.MSBuildTargets.exe -pp "%ProjectPath%" -cn "%ConfigurationName%" -pn "Any CPU" -tp "%TargetPath%"
+if "%ConfigurationName%" == "Debug" (
+	bin\%ConfigurationName%\KsWare.MSBuildTargets.exe -pp "%ProjectPath%" -cn "%ConfigurationName%" -pn "Any CPU" -tp "%TargetPath%"
+)
+if "%ConfigurationName%" == "Release" (
+	bin\release\nuget.exe pack KsWare.MSBuildTargets.nuspec
+)
 ENDLOCAL
 pause
 
