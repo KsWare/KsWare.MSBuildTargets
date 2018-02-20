@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿environment:
+  access_token:
+    secure: 8NIH16nmPkoCWPpkMTQm1eXP/gxbRpHYskufQY2Er4NDUqIghIJDQPmiMipCcTHK
 
-namespace KsWare.MSBuildTargets {
-	
-	public class appveyor {
-		
-	}
-}
+on_success:
+  - git config --global credential.helper store
+  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+  - git config --global user.email "ks@ksware.de"
+  - git config --global user.name "SchreinerK"
+  - git commit -a -m "increment version"
+  - git push
