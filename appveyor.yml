@@ -56,8 +56,8 @@ on_success:
 - git config --global user.email "ks@ksware.de"
 - git config --global user.name "SchreinerK"
 - git checkout master
-- git tag -a v%appveyor_build_version%
-- git commit -a -m "increment version"
+- git tag v%appveyor_build_version%
+- git commit -a -m "TAG increment version"
 - git push
 on_failure:
 - cmd: '@echo --- On build error script ---'
