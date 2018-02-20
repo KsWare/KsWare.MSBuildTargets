@@ -79,9 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="KsWare.MSBuildTargets.nuspec">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="appveyor.yml" />
     <None Include="PackageFiles\Install.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
