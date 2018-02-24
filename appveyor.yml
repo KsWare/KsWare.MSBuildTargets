@@ -19,7 +19,7 @@ assembly_info:
 nuget:
   project_feed: true
 init:
-- cmd: @echo Configuration file: "appveyor.yml"
+- cmd: '@echo Configuration file: "appveyor.yml"'
 before_build:
 - cmd: >-
     @echo --- before build script ---
