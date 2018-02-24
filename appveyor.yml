@@ -19,12 +19,12 @@ assembly_info:
 nuget:
   project_feed: true
 init:
-- cmd: 'echo Configuration file: "appveyor.yml"'
+- cmd: @echo Configuration file: "appveyor.yml"
 before_build:
 - cmd: >-
-    echo --- before build script ---
+    @echo --- before build script ---
 
-    nuget restore
+    nuget restore src
 build:
   project: KsWare.MSBuildTargets.csproj
   publish_nuget: true
@@ -33,7 +33,7 @@ before_package:
 - cmd: 'echo --- before packaging script ---'
 after_build:
 - cmd: >-
-    echo --- after build script ---
+    @echo --- after build script ---
 
     FOR /F " usebackq tokens=*" %%f IN (`dir %temp% /B /S^|find ".nupkg"`) DO @set TEMPPACK=%%~dpf
 
