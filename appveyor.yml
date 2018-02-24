@@ -77,7 +77,9 @@ on_success:
 
     git commit -a -m "[skip ci] increment version $env:appveyor_build_version"
 
-    git push
+    #git push
+
+    git push origin HEAD:master
 
     if ($LastExitCode -ne 0) { write-host "git push failed! :-("  }
 
