@@ -27,7 +27,8 @@ init:
 before_build:
 - ps: >-
     echo "--- before build script ---"
-    & nuget restore src
+
+    nuget restore src
 build:
   project: src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj
   publish_nuget: true
@@ -57,14 +58,23 @@ after_deploy:
 on_success:
 - ps: >-
     echo "--- On build success script --- "
+
     git config --global credential.helper store
+
     #Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+
     Add-Content "$env:USERPROFILE\.git-credentials" "$($env:access_token_ks)`n"
+
     git config --global user.email "ks@ksware.de"
+
     git config --global user.name "SchreinerK"
+
     git checkout master
+
     git commit -a -m "[skip ci] increment version %appveyor_build_version%"
+
     git push
+
     if ($LastExitCode -ne 0) { write-host "git push failed! :-("  }
 
 on_failure:
