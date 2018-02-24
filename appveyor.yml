@@ -22,7 +22,7 @@ init:
 - cmd: >-
     @echo Configuration file: "appveyor.yml"'
 
-    echo CD: $CD$
+    echo CD: %CD%
 before_build:
 - cmd: >-
     echo --- before build script --- %CD%
