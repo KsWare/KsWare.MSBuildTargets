@@ -27,7 +27,7 @@ init:
 before_build:
 - ps: >-
     echo "--- before build script ---"
-    nuget restore src
+    $ nuget restore src
 build:
   project: src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj
   publish_nuget: true
