@@ -73,6 +73,8 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Commands\NuGetPack.cs" />
     <Compile Include="Internal\Helper.cs" />
+    <Compile Include="Nuget\RestApiV3\Contracts\GetLatestVersionResult.cs" />
+    <Compile Include="Nuget\RestApiV3\NuGetApiClientV3.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property.cs" />

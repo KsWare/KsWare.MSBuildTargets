@@ -1,6 +1,6 @@
 ﻿environment:
   access_token:
-    secure: 8NIH16nmPkoCWPpkMTQm1eXP/gxbRpHYskufQY2Er4NDUqIghIJDQPmiMipCcTHK
+    secure: oWn3mv+wxoVw9NT6nh6+VVM2KzoTnnX3qbhjVn2R+yyxBCmBFvoHF57jnMw69E21
 
 version: 0.1.{build}
 branches:
