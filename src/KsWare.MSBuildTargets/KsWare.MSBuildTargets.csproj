@@ -107,5 +107,10 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\packages\NuGet.CommandLine.4.5.1\tools\NuGet.exe">
+      <Link>NuGet.exe</Link>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
