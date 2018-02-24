@@ -52,8 +52,8 @@
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NuGet">
-      <HintPath>packages\NuGet.CommandLine.4.5.1\tools\NuGet.exe</HintPath>
+    <Reference Include="NuGet, Version=4.5.1.4, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -95,10 +95,10 @@
     <None Include="PackageFiles\Uninstall.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <None Include="PackageFiles\KsWare.MSBuildTargets.sample.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
