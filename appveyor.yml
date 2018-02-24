@@ -59,6 +59,10 @@ on_success:
 - ps: >-
     echo "--- On build success script --- "
 
+    $env:GIT_TRACE = "2"
+
+    $env:GIT_TRACE_SETUP = "2"
+
     git config --global credential.helper store
 
     #Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
