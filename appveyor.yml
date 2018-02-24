@@ -65,9 +65,9 @@ on_success:
 
     git config --global credential.helper store
 
-    #Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
 
-    Add-Content "$env:USERPROFILE\.git-credentials" "$($env:access_token_ks)`n"
+    #Add-Content "$env:USERPROFILE\.git-credentials" "$($env:access_token_ks)`n"
 
     git config --global user.email "ks@ksware.de"
 
@@ -77,11 +77,13 @@ on_success:
 
     git commit -a -m "[skip ci] increment version $env:appveyor_build_version"
 
+    if ($LastExitCode -ne 0) { write-host "git commit failed! $LastExitCode"  }
+
     #git push
 
     git push origin HEAD:master
 
-    if ($LastExitCode -ne 0) { write-host "git push failed! :-("  }
+    if ($LastExitCode -ne 0) { write-host "git push failed! $LastExitCode"  }
 
 on_failure:
 - cmd: 'echo --- On build error script --- '
