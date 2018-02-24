@@ -54,7 +54,7 @@ deploy:
   on:
     branch: Master
 after_deploy:
-- ps: 'echo "--- After deployment script --- "
+- ps: echo "--- After deployment script --- "
 on_success:
 - ps: >-
     echo "`n--- On build success script --- "
