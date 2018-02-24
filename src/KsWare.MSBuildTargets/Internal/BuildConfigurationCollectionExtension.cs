@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace KsWare.MSBuildTargets.Internal {
 
-	public static class BuildConfigurationCollectionHelper {
+	public static class BuildConfigurationCollectionExtension {
 
 		public static BuildConfiguration Get(this IEnumerable<BuildConfiguration> col, string buildConfigurationName) {
 			return col.LastOrDefault(p =>

@@ -18,3 +18,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("a8d1f8b9-3d84-46c0-b347-1fc7960ac8a2")]
 
 [assembly: AssemblyVersion("0.1.49")]
+[assembly: InternalsVisibleTo("KsWare.MSBuildTargets.Tests")]

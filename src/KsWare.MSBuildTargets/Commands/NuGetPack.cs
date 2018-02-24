@@ -35,7 +35,7 @@ namespace KsWare.MSBuildTargets.Commands {
 					case "":
 						return Version;
 					case "IncrementPatch":
-						return Helper.AutoIncrementPatch(Source,OutputDirectory);
+						return Helper.IncrementPatch(Source,OutputDirectory);
 					default:
 						return Version;
 				}
@@ -51,7 +51,7 @@ namespace KsWare.MSBuildTargets.Commands {
 					case "":
 						return Suffix;
 					case "IncrementCI":
-						return Helper.AutoIncrementSuffixCI(Source, OutputDirectory);
+						return Helper.IncrementSuffixCI(Source, OutputDirectory);
 					default:
 						return Suffix;
 				}
@@ -95,8 +95,8 @@ namespace KsWare.MSBuildTargets.Commands {
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[XmlElement("Options")]
 		public string OptionsXml {
-			get => Helper.JoinSpaceSeperatedVerbatimString(Options);
-			set => Options = string.IsNullOrWhiteSpace(value) ? new List<string>() : Helper.SplitSpaceSeperatedVerbatimString(value);
+			get => Helper.JoinSpaceSeparatedVerbatimString(Options);
+			set => Options = string.IsNullOrWhiteSpace(value) ? new List<string>() : Helper.SplitSpaceSeparatedVerbatimString(value);
 		}
 
 		public static NuGetPack Join(List<NuGetPack> configurations) {

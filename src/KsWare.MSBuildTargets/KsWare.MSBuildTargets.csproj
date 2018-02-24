@@ -68,12 +68,13 @@
   <ItemGroup>
     <Compile Include="BuildConfiguration.cs" />
     <Compile Include="Commands\NugetPush.cs" />
-    <Compile Include="Internal\PropertyCollectionHelper.cs" />
-    <Compile Include="Internal\BuildConfigurationCollectionHelper.cs" />
+    <Compile Include="Internal\PropertyCollectionExtension.cs" />
+    <Compile Include="Internal\BuildConfigurationCollectionExtension.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Commands\NuGetPack.cs" />
     <Compile Include="Internal\Helper.cs" />
     <Compile Include="Nuget\RestApiV3\Contracts\GetLatestVersionResult.cs" />
+    <Compile Include="Nuget\RestApiV3\Contracts\SearchResult.cs" />
     <Compile Include="Nuget\RestApiV3\NuGetApiClientV3.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -81,7 +82,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="appveyor.yml" />
     <None Include="PackageFiles\Install.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -99,9 +99,6 @@
     <None Include="PackageFiles\KsWare.MSBuildTargets.sample.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
