@@ -1,47 +1,57 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using KsWare.MSBuildTargets.Nuget.RestApiV3.Contracts;
 using Newtonsoft.Json;
 
-namespace KsWare.MSBuildTargets.Nuget.RestApiV3 {
+namespace KsWare.MSBuildTargets.Nuget.RestApiV3.Contracts {
 
-	public class NuGetApiClientV3 {
+	public class SearchResult {
 
-		public async Task<string> Search(string packageId, bool preRelease) {
-			// https://api-v2v3search-0.nuget.org/query?q=KsWare.MSBuildTargets&prerelease=false
-			return await GetJsonText($"https://api-v2v3search-0.nuget.org/query?q={packageId}&prerelease={preRelease}");
+		[JsonPropertyAttribute("@context")]
+		public Context1 Context { get; set; }
+		public int TotalHits { get; set; }
+		public DateTime LastReopen { get; set; }
+		public Data1[] Data { get; set; }
+
+		public class Context1 {
+			[JsonPropertyAttribute("@vocab")]
+			public string Vocab { get; set; }
+
+			[JsonPropertyAttribute("@base")]
+			public string Base { get; set; }
 		}
 
-		public async Task<string> GetLatestVersion(string packageId, bool preRelease) {
-			// https://api-v2v3search-0.nuget.org/query?q=KsWare.MSBuildTargets&prerelease=false
-			var jt = await GetJsonText($"https://api-v2v3search-0.nuget.org/query?q={packageId}&prerelease={preRelease}");
-			var r = JsonConvert.DeserializeObject<GetLatestVersionResult>(jt);
-			return r.Data[0].Version;
+		public class Data1 {
+			[JsonProperty("@id")] public string @id { get; set; }
+			[JsonProperty("@type")] public string Type { get; set; }
+
+			public string Registration { get; set; }
+
+			[JsonProperty("id")] public string Id { get; set; }
+			public string Version { get; set; }
+			public string Description { get; set; }
+			public string Summary { get; set; }
+			public string Title { get; set; }
+			public string IconUrl { get; set; }
+			public string LicenseUrl { get; set; }
+			public string ProjectUrl { get; set; }
+			public string[] Tags { get; set; }
+			public string[] Authors { get; set; }
+			public int TotalDownloads { get; set; }
+			public bool Verified { get; set; }
+			public Version1[] Versions { get; set; }
 		}
 
+		public class Version1 {
+			public string Version { get; set; }
+			public int Downloads { get; set; }
 
-		public async Task<string> GetJsonText(string url) {
-			Debug.WriteLine($"GET {url}");
-			using (var client = new HttpClient()) {
-				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-				using (var response = await client.GetAsync(url)) {
-					Log(response.StatusCode);
-					response.EnsureSuccessStatusCode();
-					var content = await response.Content.ReadAsStringAsync();
-					return content;
-				}
-			}
-		}
-
-		private void Log(HttpStatusCode statusCode) {
-			Debug.WriteLine($"done {(int) statusCode} {statusCode}");
+			[JsonProperty("@id")]
+			public string id { get; set; }
 		}
 	}
-
 }
 /*
 // 20180223164023

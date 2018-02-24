@@ -82,7 +82,7 @@ namespace KsWare.MSBuildTargets {
 		private static int CallCommand(string commandLine) {
 			var cmdline = commandLine;
 
-			var args = Helper.SplitSpaceSeperatedVerbatimString(cmdline).ToArray();
+			var args = Helper.SplitSpaceSeparatedVerbatimString(cmdline).ToArray();
 			var cmd = args[0];
 			args = args.Skip(1).ToArray();
 
@@ -118,7 +118,7 @@ namespace KsWare.MSBuildTargets {
 					}
 					ExpandSpecialVariables(pack, ref expandedArgs);
 					result = global::NuGet.CommandLine.Program.Main(expandedArgs);
-					Console.WriteLine("nuget " + Helper.JoinSpaceSeperatedVerbatimString(expandedArgs));
+					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
 					if (result==0) Configuration.GlobalProperties.Set(N.NuGet.Push.PackagePath,GetPackagePath(Configuration));
 					break;
 				}
@@ -127,13 +127,13 @@ namespace KsWare.MSBuildTargets {
 					ExpandVariables(ref expandedArgs,"NuGet.Push");
 					ExpandSpecialVariables(push, ref expandedArgs);
 					push.PackagePath = expandedArgs[1];
-					Console.WriteLine("nuget "+Helper.JoinSpaceSeperatedVerbatimString(expandedArgs));
+					Console.WriteLine("nuget "+Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
 					result = global::NuGet.CommandLine.Program.Main(expandedArgs);
 					break;
 				}
 				default: {
 					ExpandVariables(ref expandedArgs);
-					Console.WriteLine("nuget " + Helper.JoinSpaceSeperatedVerbatimString(expandedArgs));
+					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
 					result = global::NuGet.CommandLine.Program.Main(expandedArgs);
 					break;
 				}
@@ -169,8 +169,8 @@ namespace KsWare.MSBuildTargets {
 			var source = Configuration.GetProperty(N.IDE.TargetPath);
 			for (int i = 0; i < args.Length; i++) {
 				switch (args[i].ToLowerInvariant()) {
-					case "$incrementci$": args[i] = Helper.AutoIncrementSuffixCI(source,outputDirectory); break;
-					case "$incrementpatch$": args[i] = Helper.AutoIncrementPatch(source, outputDirectory); break;
+					case "$incrementci$": args[i] = Helper.IncrementSuffixCI(source,outputDirectory); break;
+					case "$incrementpatch$": args[i] = Helper.IncrementPatch(source, outputDirectory); break;
 				}
 			}
 		}

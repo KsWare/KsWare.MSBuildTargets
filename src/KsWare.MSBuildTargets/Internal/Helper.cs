@@ -4,25 +4,42 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using KsWare.MSBuildTargets.Nuget.RestApiV3;
 using NuGet.Versioning;
 
 namespace KsWare.MSBuildTargets.Internal {
 
 	public static class Helper {
 
-		public static List<string> SplitSpaceSeperatedVerbatimString(string value) {
+		/// <summary>
+		/// Splits and unescapes space separated verbatim string.
+		/// </summary>
+		/// <param name="value">The value.</param>
+		/// <returns>List of separated string</returns>
+		/// <remarks><para>This is the opposite function from <see cref="JoinSpaceSeparatedVerbatimString"/></para></remarks>
+		public static List<string> SplitSpaceSeparatedVerbatimString(string value) {
 			var list = Regex.Matches(value, @"\""(\""\""|[^\""])+\""|[^ ]+", RegexOptions.ExplicitCapture).Cast<Match>()
 				.Select(m => m.Value).ToList();
 			list = list.Select(m => m.StartsWith("\"") ? m.Substring(1, m.Length - 2).Replace("\"\"", "\"") : m).ToList();
 			return list;
 		}
 
-		public static string JoinSpaceSeperatedVerbatimString(IEnumerable<string> values) {
+		/// <summary>
+		/// Joins multiple strings to space separated verbatim string.
+		/// </summary>
+		/// <param name="values">The values.</param>
+		/// <returns>System.String.</returns>
+		/// <remarks>
+		/// <para>With this function you can safely join an array of strings which includes double quotes to an single string .</para>
+		/// <para><c>A</c> + <c>B B</c> + <c>C "C" C</c> converts to <c>A "B B" "C ""C"" C"</c>.</para>
+		/// <para>This is the opposite function from <see cref="SplitSpaceSeparatedVerbatimString"/></para>
+		/// </remarks>
+		public static string JoinSpaceSeparatedVerbatimString(IEnumerable<string> values) {
 			if (values==null || !values.Any()) return null;
 			var sb = new StringBuilder();
 			foreach (var option in values) {
 				var v        = option;
-				var quote    = option.Contains(" ");
+				var quote    = option.Contains(' ') || option.Contains('"');
 				if (quote) v = v.Replace("\"", "\"\"");
 				if (quote) v = $"\"{v}\"";
 				sb.Append(" " + v);
@@ -38,29 +55,43 @@ namespace KsWare.MSBuildTargets.Internal {
 				.Select(s=>s.Substring(targetName.Length))
 				.Where(s=>regex.IsMatch(s))
 				.Select(SemanticVersion.Parse)
+				.OrderBy(v=>v)
 				.ToArray();
 			return versions;
 		}
 
-		public static string AutoIncrementPatch(string target, string outputDirectory) {
-			var targetName = Path.GetFileNameWithoutExtension(target);
-			var versions = GetExistingVersions(target, outputDirectory);
-			Array.Sort(versions, new VersionComparer());
-			var             v = versions.Last();
-			SemanticVersion newVersion;
-			newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch + 1, "", v.Metadata);
+		public static SemanticVersion[] GetExistingVersionsNugetOrg(string target) {
+			var result=new NuGetApiClientV3().Search(target, true).Result;
+			if (result.TotalHits == 0) throw new ArgumentException("Package name not found.");
+			if (result.TotalHits > 1) throw new ArgumentException("Package name is not unique.");
+
+			return result.Data[0].Versions.Select(v => SemanticVersion.Parse(v.Version)).ToArray();
+		}
+
+		public static string IncrementMajor(string target, string outputDirectory) {
+			var v   = GetExistingVersions(target, outputDirectory).Last();
+			var newVersion = new SemanticVersion(v.Major + 1, 0, 0, "", v.Metadata);
 			return newVersion.ToFullString();
 		}
 
-		public static string AutoIncrementSuffixCI(string source, string outputDirectory) {
-			var projectName = Path.GetFileNameWithoutExtension(source);
-			var packages    = Directory.GetFiles(outputDirectory, $"{projectName}*-CI*.nupkg");
-			var versions    = packages.Select(ExtractVersion).ToArray();
-			Array.Sort(versions, new VersionComparer());
-			var             v = versions.LastOrDefault() ?? new SemanticVersion(1, 0, 0);
+		public static string IncrementMinor(string target, string outputDirectory) {
+			var v = GetExistingVersions(target, outputDirectory).Last();
+			var newVersion = new SemanticVersion(v.Major, v.Minor + 1, 0, "", v.Metadata);
+			return newVersion.ToFullString();
+		}
+
+		public static string IncrementPatch(string target, string outputDirectory) {
+			var v = GetExistingVersions(target, outputDirectory).Last();
+			var newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch + 1, "", v.Metadata);
+			return newVersion.ToFullString();
+		}
+
+		public static string IncrementSuffixCI(string target, string outputDirectory) {
+			// SemVer1
+			var v = GetExistingVersions(target, outputDirectory).Last();
 			SemanticVersion newVersion;
 			if (v.Release == string.Empty) {
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, "CI00001", v.Metadata);
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch+1, "CI00001", v.Metadata);
 			}
 			else if (v.Release.StartsWith("CI")) {
 				var ci = int.Parse(Regex.Match(v.Release, @"\d+$").Value);

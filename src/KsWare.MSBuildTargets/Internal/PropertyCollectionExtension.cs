@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace KsWare.MSBuildTargets.Internal {
 
-	public static class PropertyCollectionHelper {
+	public static class PropertyCollectionExtension {
 
 		public static void Set(this IList<Property> col, string propertyName, string propertyValue) {
 			var p = col.Get(propertyName);
