@@ -169,8 +169,8 @@ namespace KsWare.MSBuildTargets {
 			var source = Configuration.GetProperty(N.IDE.TargetPath);
 			for (int i = 0; i < args.Length; i++) {
 				switch (args[i].ToLowerInvariant()) {
-					case "$incrementci$": args[i] = Helper.IncrementSuffixCI(source,outputDirectory); break;
-					case "$incrementpatch$": args[i] = Helper.IncrementPatch(source, outputDirectory); break;
+					case "$incrementci$": args[i] = Helper.IncrementSuffixCI(source,outputDirectory).ToFullString(); break;
+					case "$incrementpatch$": args[i] = Helper.IncrementPatch(source, outputDirectory).ToFullString(); break;
 				}
 			}
 		}

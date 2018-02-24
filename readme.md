@@ -2,8 +2,13 @@
 
 Executes commands on build. 
 
+With this package it is easy to build and create/publish the nuget package with auto increment version support.
+
+You can configure your Debug build to create a pre-release package with an auto incremented "-CI#####" suffix 
+and your Release build with an auto incremented patch number.
+
 ##### Version 0.1.x
- - **For test purposes only. No compatibility warranty.**
+ - **For test purposes only. No warranty.**
  - Call NuGet commands
  - Different build configurations
  - Hierarchical configuration (define nuget APIKey outside of project)
@@ -45,7 +50,7 @@ The PackageBuilder.config contains the commands and properties.
         <Property Name="SN.KeyFile" Value="D:\Develop\Company.snk" />
       </BuildConfiguration>
       <BuildConfiguration Configuration="Debug">
-        <Command>nuget pack $IDE.ProjectPath$ -OutputDirectory $OutputDirectory$ -suffix $IncrementCI$</Command>
+        <Command>nuget pack $IDE.ProjectPath$ -OutputDirectory $OutputDirectory$ -version $IncrementCI$</Command>
       </BuildConfiguration>
       <BuildConfiguration Configuration="Release">
         <Command>sn -R $IDE.ProjectPath$ $SN.KeyFile$</Command>
@@ -80,11 +85,12 @@ Parameter are usually read from KsWare.MSBuildTargets.config and can also be ove
 
 
  - `-version Increment` will increment patch version
- - `-suffix IncrementCI` will increment CI version [e.g. 1.0.0-CI00001]
+ - `-version IncrementCI` will increment CI version [e.g. 1.0.0-CI00001]
  - and all known NuGet.exe parameter
 
 ## Known Issues and scheduled Features
 
+ - support YAML/JSON configuration
  - DONE include a sample KsWare.MSBuildTargets.config
  - DONE include a template nuspec
  - DONE avoid use of Build Events

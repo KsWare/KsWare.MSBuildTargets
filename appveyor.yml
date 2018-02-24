@@ -55,14 +55,25 @@ deploy:
 after_deploy:
 - cmd: 'echo --- After deployment script --- %CD%'
 on_success:
-- cmd: 'echo --- On build success script --- %CD%'
-- git config --global credential.helper store
-- ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-- git config --global user.email "ks@ksware.de"
-- git config --global user.name "SchreinerK"
-- git checkout master
-- git commit -a -m "[skip ci] increment version %appveyor_build_version%"
-- git push
+- ps: >-
+    echo --- On build success script --- %CD%
+
+    git config --global credential.helper store
+
+    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+
+    git config --global user.email "ks@ksware.de"
+
+    git config --global user.name "SchreinerK"
+
+    git checkout master
+
+    git commit -a -m "[skip ci] increment version %appveyor_build_version%"
+
+    git push
+
+    if ($LastExitCode -ne 0) { write-host "git push failed! :-("  }
+
 on_failure:
 - cmd: 'echo --- On build error script --- %CD%'
 on_finish:

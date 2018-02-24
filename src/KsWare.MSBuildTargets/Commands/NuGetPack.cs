@@ -35,7 +35,9 @@ namespace KsWare.MSBuildTargets.Commands {
 					case "":
 						return Version;
 					case "IncrementPatch":
-						return Helper.IncrementPatch(Source,OutputDirectory);
+						return Helper.IncrementPatch(Source,OutputDirectory).ToFullString();
+					case "IncrementCI":
+						return Helper.IncrementSuffixCI(Source, OutputDirectory).ToFullString();
 					default:
 						return Version;
 				}
@@ -48,10 +50,6 @@ namespace KsWare.MSBuildTargets.Commands {
 		public string SuffixExpanded {
 			get {
 				switch (Suffix ?? string.Empty) {
-					case "":
-						return Suffix;
-					case "IncrementCI":
-						return Helper.IncrementSuffixCI(Source, OutputDirectory);
 					default:
 						return Suffix;
 				}

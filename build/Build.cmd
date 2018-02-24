@@ -27,6 +27,8 @@ set EnableNuGetPackageRestore=true
 ::TODO %nuget% restore src
 
 :: TODO the fucking shit would't work in this cmd-file!
+:: C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\Microsoft.Common.CurrentVersion.targets(2041,5): error MSB3248: Der AssemblyFiles-Parameter enthält einen ungültigen Wert ""D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\src\KsWare.MSBuildTargets\bin\Debug\KsWare.MSBuildTargets.exe"". Illegales Zeichen im Pfad. [D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\src\KsWare.MSBuildTargets.Tests\KsWare.MSBuildTargets.Tests.csproj]
+echo msbuild src\KsWare.MSBuildTargets.sln /p:Configuration="%ConfigurationName%" /p:Platform="Any CPU" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Detailed /nr:false
 msbuild src\KsWare.MSBuildTargets.sln /p:Configuration="%ConfigurationName%" /p:Platform="Any CPU" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Detailed /nr:false
 pause
 REM Create package 

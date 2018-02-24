@@ -49,15 +49,42 @@ namespace KsWare.MSBuildTargets.Internal {
 
 		public static SemanticVersion[] GetExistingVersions(string target, string outputDirectory) {
 			var regex=new Regex(@"(?imnx-s:^\d+\.\d+\.\d+(-[A-Z0-9\.]*)?(\+[A-Z0-9\.]*)?$)"); //TODO test regex
-			var targetName = Path.GetFileNameWithoutExtension(target);
-			var versions=Directory.GetFiles(outputDirectory, $"{targetName}*.nupkg")
+			var targetName = GetTargetName(target);
+			 
+			var localVersions=Directory.GetFiles(outputDirectory, $"{targetName}*.nupkg")
 				.Select(Path.GetFileNameWithoutExtension)
-				.Select(s=>s.Substring(targetName.Length))
+				.Select(s=>s.Substring(targetName.Length+1))
 				.Where(s=>regex.IsMatch(s))
-				.Select(SemanticVersion.Parse)
-				.OrderBy(v=>v)
-				.ToArray();
+				.Select(SemanticVersion.Parse);
+
+//			var a = Directory.GetFiles(outputDirectory, $"{targetName}*.nupkg");
+//			var b = a.Select(Path.GetFileNameWithoutExtension);
+//			var c = b.Select(s => s.Substring(targetName.Length));
+//			var d = c.Where(s => regex.IsMatch(s));
+//			var e = d.Select(SemanticVersion.Parse);
+//			var f = e.OrderBy(v => v).ToArray();
+
+			var onlineVersions= GetExistingVersionsNugetOrg(target);
+
+			var versions = localVersions.Concat(onlineVersions).OrderBy(v => v).ToArray();
+
 			return versions;
+		}
+
+		// Get PackageID
+		private static string GetTargetName(string target) {
+			string targetName;
+			if (target.Contains("\\")) {
+				targetName = Path.GetFileNameWithoutExtension(target);
+			}
+			else {
+				var ext = Path.GetExtension(target)?.ToLowerInvariant();
+				if (ext == ".exe" || ext == ".dll")
+					targetName = Path.GetFileNameWithoutExtension(target);
+				else
+					targetName = target;
+			}
+			return targetName;
 		}
 
 		public static SemanticVersion[] GetExistingVersionsNugetOrg(string target) {
@@ -68,42 +95,46 @@ namespace KsWare.MSBuildTargets.Internal {
 			return result.Data[0].Versions.Select(v => SemanticVersion.Parse(v.Version)).ToArray();
 		}
 
-		public static string IncrementMajor(string target, string outputDirectory) {
+		public static SemanticVersion IncrementMajor(string target, string outputDirectory) {
 			var v   = GetExistingVersions(target, outputDirectory).Last();
 			var newVersion = new SemanticVersion(v.Major + 1, 0, 0, "", v.Metadata);
-			return newVersion.ToFullString();
+			return newVersion;
 		}
 
-		public static string IncrementMinor(string target, string outputDirectory) {
+		public static SemanticVersion IncrementMinor(string target, string outputDirectory) {
 			var v = GetExistingVersions(target, outputDirectory).Last();
 			var newVersion = new SemanticVersion(v.Major, v.Minor + 1, 0, "", v.Metadata);
-			return newVersion.ToFullString();
+			return newVersion;
 		}
 
-		public static string IncrementPatch(string target, string outputDirectory) {
+		public static SemanticVersion IncrementPatch(string target, string outputDirectory) {
 			var v = GetExistingVersions(target, outputDirectory).Last();
 			var newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch + 1, "", v.Metadata);
-			return newVersion.ToFullString();
+			return newVersion;
 		}
 
-		public static string IncrementSuffixCI(string target, string outputDirectory) {
+		public static SemanticVersion IncrementSuffixCI(string target, string outputDirectory) {
 			// SemVer1
-			var v = GetExistingVersions(target, outputDirectory).Last();
+			var v = GetExistingVersions(target, outputDirectory).LastOrDefault();
+			if (v == null) // TODO extraxt assembly version
+				throw new ArgumentException($"No existing package for target found.") {
+					Data = {{"target", target}, {"outputDirectory", outputDirectory}}
+				};
 			SemanticVersion newVersion;
 			if (v.Release == string.Empty) {
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch+1, "CI00001", v.Metadata);
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch+1, "CI00001","");
 			}
 			else if (v.Release.StartsWith("CI")) {
 				var ci = int.Parse(Regex.Match(v.Release, @"\d+$").Value);
 				ci++;
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, $"CI{ci:D5}", v.Metadata);
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, $"CI{ci:D5}","");
 			}
 			else {
 				//TODO this will overwrite existing release
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, "CI00001", v.Metadata);
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, "CI00001", "");
 			}
 
-			return newVersion.Release;
+			return newVersion;
 		}
 
 		public static SemanticVersion ExtractVersion(string nupgk) {
