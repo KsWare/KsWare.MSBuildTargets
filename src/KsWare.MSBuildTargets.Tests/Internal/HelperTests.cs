@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using KsWare.MSBuildTargets.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -28,8 +29,18 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 			var outputDirectory = @"D:\Develop\Packages";
 			var target = @"KsWare.MSBuildTargets";
 			if(!Directory.Exists(outputDirectory)) Assert.Inconclusive("OutputDirectory not configured.");
-			var v = Helper.IncrementSuffixCI(target, outputDirectory);
-			StringAssert.StartsWith(v.ToFullString(),"CI");
+			var v0 = Helper.GetExistingVersions(target, outputDirectory).LastOrDefault();
+			var v1 = Helper.IncrementSuffixCI(target, outputDirectory);
+			StringAssert.Contains(v1.ToFullString(),"-CI");
 		}
+
+		[TestMethod()]
+		public void FindFilesTest() {
+			var directory = @"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\src";
+			var globPattern = @"**\AssemblyInfo.*";
+			var files=Helper.FindFiles(directory, globPattern);
+			Assert.AreEqual(4,files.Length);
+		}
+
 	}
 }

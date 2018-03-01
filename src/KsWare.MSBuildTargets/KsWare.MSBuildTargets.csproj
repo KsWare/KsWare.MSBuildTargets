@@ -52,6 +52,9 @@
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DotNet.Glob, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNet.Glob.1.6.9\lib\net45\DotNet.Glob.dll</HintPath>
+    </Reference>
     <Reference Include="NuGet, Version=4.5.1.4, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
