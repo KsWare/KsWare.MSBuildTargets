@@ -3,6 +3,11 @@
     secure: oWn3mv+wxoVw9NT6nh6+VVM2KzoTnnX3qbhjVn2R+yyxBCmBFvoHF57jnMw69E21
   access_token_ks:
     secure: BqtNr3JlK85SZdqNKOm6yqxWQZlLD6fFsSOOZjLSsw6yAt90iDt7ZnhfbSvCk5CCNm3zmnOaUgYBk3fpCoLKM5XY8Sm2Zmy5dc2W8Z8VAMI=
+  github_access_token_appveyor:
+    secure: 9Z+iJbAt3SVWp4/F34xGQ1iDUf1XIdshovPwK3wMQf8B8wI+o2XyFsg8NmJlsYkl
+  github_user_email_appveyor: appveyor@ksware.de
+  github_user_name_appveyor: Appveyor-KsWare
+
 version: 0.1.{build}
 branches:
   only:
@@ -20,32 +25,23 @@ assembly_info:
 nuget:
   project_feed: true
 init:
-- cmd: >-
-    @echo Configuration file: "appveyor.yml"'
-
-    echo CD: %CD%
+- cmd: echo Configuration file: "appveyor.yml"'
 before_build:
-- ps: >-
-    echo "--- before build script ---"
-
-    nuget restore src
+- echo "--- before build script ---"
+- nuget restore src
 build:
   project: src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj
   publish_nuget: true
   verbosity: normal
 before_package:
-- cmd: 'echo --- before packaging script ---'
+- echo --- before packaging script ---
 after_build:
-- cmd: >-
-    @echo --- after build script ---
-
-    FOR /F " usebackq tokens=*" %%f IN (`dir %temp% /B /S^|find ".nupkg"`) DO @set TEMPPACK=%%~dpf
-
-    echo nuget pack %APPVEYOR_BUILD_FOLDER%\src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj -properties "Configuration=%configuration%;Platform=AnyCPU" -OutputDirectory "%TEMPPACK:~0,-1%" -Version %appveyor_build_version% -tool
-
-    nuget pack %APPVEYOR_BUILD_FOLDER%\src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj -properties "Configuration=%configuration%;Platform=AnyCPU" -OutputDirectory "%TEMPPACK:~0,-1%" -Version %appveyor_build_version% -tool
+- echo --- after build script ---
+- cmd: FOR /F " usebackq tokens=*" %%f IN (`dir %temp% /B /S^|find ".nupkg"`) DO @set TEMPPACK=%%~dpf
+- echo nuget pack %APPVEYOR_BUILD_FOLDER%\src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj -properties "Configuration=%configuration%;Platform=AnyCPU" -OutputDirectory "%TEMPPACK:~0,-1%" -Version %appveyor_build_version% -tool
+- nuget pack %APPVEYOR_BUILD_FOLDER%\src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj -properties "Configuration=%configuration%;Platform=AnyCPU" -OutputDirectory "%TEMPPACK:~0,-1%" -Version %appveyor_build_version% -tool
 before_deploy:
-- cmd: 'echo --- Before deployment script ---'
+- cmd: echo "--- Before deployment script ---"
 deploy:
 - provider: NuGet
   api_key:
@@ -56,35 +52,14 @@ deploy:
 after_deploy:
 - ps: echo "--- After deployment script --- "
 on_success:
-- ps: >-
-    echo "`n--- On build success script --- "
-
-    #$env:GIT_TRACE = "2"
-
-    #$env:GIT_TRACE_SETUP = "2"
-
-    git config --global credential.helper store
-
-    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-
-    #Add-Content "$env:USERPROFILE\.git-credentials" "$($env:access_token_ks)`n"
-
-    git config --global user.email "ks@ksware.de"
-
-    git config --global user.name "SchreinerK"
-
-    #git checkout master
-
-    git commit -a -m "[skip ci] increment version $env:appveyor_build_version"
-
-    if ($LastExitCode -ne 0) { write-host "git commit failed! $LastExitCode"  }
-
-    #git push
-
-    git push origin HEAD:master
-
-    if ($LastExitCode -ne 0) { write-host "git push failed! $LastExitCode"  }
-
+- echo "`n--- On build success script --- "
+- git config --global credential.helper store
+- ps: Add-Content "$env:USERPROFILE\\.git-credentials" "https://$($env:github_access_token_appveyor):x-oauth-basic@github.com`n"
+- git config --global user.email "%github_user_email_appveyor%"
+- git config --global user.name "%github_user_name_appveyor%"
+- git checkout master
+- git commit -a -m "[skip ci] increment version %appveyor_build_version%"
+- git push
 on_failure:
 - cmd: 'echo --- On build error script --- '
 on_finish:
