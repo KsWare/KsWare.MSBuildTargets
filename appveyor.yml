@@ -25,7 +25,7 @@ assembly_info:
 nuget:
   project_feed: true
 init:
-- cmd: echo Configuration file: "appveyor.yml"'
+- cmd: 'echo Configuration file: "appveyor.yml"'
 before_build:
 - echo "--- before build script ---"
 - nuget restore src
@@ -37,7 +37,7 @@ before_package:
 - echo --- before packaging script ---
 after_build:
 - echo --- after build script ---
-- cmd: FOR /F " usebackq tokens=*" %%f IN (`dir %temp% /B /S^|find ".nupkg"`) DO @set TEMPPACK=%%~dpf
+- cmd: 'FOR /F " usebackq tokens=*" %%f IN (`dir %temp% /B /S^|find ".nupkg"`) DO @set TEMPPACK=%%~dpf'
 - echo nuget pack %APPVEYOR_BUILD_FOLDER%\src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj -properties "Configuration=%configuration%;Platform=AnyCPU" -OutputDirectory "%TEMPPACK:~0,-1%" -Version %appveyor_build_version% -tool
 - nuget pack %APPVEYOR_BUILD_FOLDER%\src\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj -properties "Configuration=%configuration%;Platform=AnyCPU" -OutputDirectory "%TEMPPACK:~0,-1%" -Version %appveyor_build_version% -tool
 before_deploy:
