@@ -50,21 +50,22 @@ namespace KsWare.MSBuildTargets.Internal {
 		}
 
 		public static SemanticVersion[] GetExistingVersions(string target, string outputDirectory) {
-			var regex=new Regex(@"(?imnx-s:^\d+\.\d+\.\d+(-[A-Z0-9\.]*)?(\+[A-Z0-9\.]*)?$)"); //TODO test regex
+			var regex=new Regex(@"(?imnx-s:\d+\.\d+\.\d+(-[A-Z0-9\.]*)?(\+[A-Z0-9\.]*)?$)"); //TODO test regex
 			var targetName = GetTargetName(target);
 			 
-			var localVersions=Directory.GetFiles(outputDirectory, $"{targetName}*.nupkg")
-				.Select(Path.GetFileNameWithoutExtension)
-				.Select(s=>s.Substring(targetName.Length+1))
-				.Where(s=>regex.IsMatch(s))
-				.Select(SemanticVersion.Parse);
+			var localVersions= outputDirectory==null ? new SemanticVersion[0]
+				: Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg")	// filter possible files
+				.Select(Path.GetFileNameWithoutExtension)						// trim extension
+				.Select(s=>s.Substring(targetName.Length +1))					// remove target name and .
+				.Where(s=>regex.IsMatch(s))										// filter valid versions "1.2.3-xyz+abc"
+				.Select(SemanticVersion.Parse);									// convert to SemanticVersion
 
-//			var a = Directory.GetFiles(outputDirectory, $"{targetName}*.nupkg");
-//			var b = a.Select(Path.GetFileNameWithoutExtension);
-//			var c = b.Select(s => s.Substring(targetName.Length));
-//			var d = c.Where(s => regex.IsMatch(s));
-//			var e = d.Select(SemanticVersion.Parse);
-//			var f = e.OrderBy(v => v).ToArray();
+			var a = Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg");
+			var b = a.Select(Path.GetFileNameWithoutExtension);
+			var c = b.Select(s => s.Substring(targetName.Length+1));
+			var d = c.Where(s => regex.IsMatch(s));
+			var e = d.Select(SemanticVersion.Parse);
+			var f = e.OrderBy(v => v).ToArray();
 
 			var onlineVersions= GetExistingVersionsNugetOrg(target);
 
@@ -91,7 +92,7 @@ namespace KsWare.MSBuildTargets.Internal {
 
 		public static SemanticVersion[] GetExistingVersionsNugetOrg(string target) {
 			var result=new NuGetApiClientV3().Search(target, true).Result;
-			if (result.TotalHits == 0) throw new ArgumentException("Package name not found.");
+			if (result.TotalHits == 0) return new SemanticVersion[0];
 			if (result.TotalHits > 1) throw new ArgumentException("Package name is not unique.");
 
 			return result.Data[0].Versions.Select(v => SemanticVersion.Parse(v.Version)).ToArray();
@@ -133,7 +134,7 @@ namespace KsWare.MSBuildTargets.Internal {
 			}
 			else {
 				//TODO this will overwrite existing release
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, "CI00001", "");
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch+1, "CI00001", "");
 			}
 
 			return newVersion;

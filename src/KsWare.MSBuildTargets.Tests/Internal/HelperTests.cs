@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using KsWare.MSBuildTargets.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -7,6 +8,13 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 
 	[TestClass()]
 	public class HelperTests {
+
+		private Action _testCleanup;
+
+		[TestCleanup]
+		public void TestCleanup() {
+			_testCleanup?.Invoke();
+		}
 
 		[TestMethod()]
 		public void SplitSpaceSeperatedVerbatimStringTest() {
@@ -24,14 +32,24 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 				Helper.JoinSpaceSeparatedVerbatimString(input));
 		}
 
-		[TestMethod()] //TODO improve test
-		public void IncrementSuffixCITest() {
+		[DataTestMethod]
+		[DataRow("1.0.0"        , "1.0.1-CI00001")]
+		[DataRow("1.0.1-CI00001", "1.0.1-CI00002")]
+		[DataRow("1.0.1-xyz"    , "1.0.2-CI00001")]
+		public void IncrementSuffixCITest(string test, string expected) {
 			var outputDirectory = @"D:\Develop\Packages";
-			var target = @"KsWare.MSBuildTargets";
 			if(!Directory.Exists(outputDirectory)) Assert.Inconclusive("OutputDirectory not configured.");
+			var target = @"KsWare.MSBuildTargets.Tests";
+
+			var f = Path.Combine(outputDirectory, target + "." + test + ".nupkg");
+			_testCleanup = () => { File.Delete(f); };
+			File.WriteAllText(f,null);
+
 			var v0 = Helper.GetExistingVersions(target, outputDirectory).LastOrDefault();
+			Assert.AreEqual(test, v0.ToFullString());
+
 			var v1 = Helper.IncrementSuffixCI(target, outputDirectory);
-			StringAssert.Contains(v1.ToFullString(),"-CI");
+			Assert.AreEqual(expected,v1.ToFullString());
 		}
 
 		[TestMethod()]
@@ -40,6 +58,14 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 			var globPattern = @"**\AssemblyInfo.*";
 			var files=Helper.FindFiles(directory, globPattern);
 			Assert.AreEqual(4,files.Length);
+		}
+
+		[TestMethod()]
+		public void GetExistingVersionsNugetOrgTest() {
+			Assert.AreNotEqual(0, Helper.GetExistingVersions("KsWare.MSBuildTargets", null).Length);
+			Assert.AreEqual(0, Helper.GetExistingVersions("KsWare.NonExistentPackage", null).Length);
+
+			Assert.ThrowsException<DirectoryNotFoundException>(() => Helper.GetExistingVersions("KsWare.MSBuildTargets", @"X:\NonExistingFolder\Gfavc6567"));
 		}
 
 	}
