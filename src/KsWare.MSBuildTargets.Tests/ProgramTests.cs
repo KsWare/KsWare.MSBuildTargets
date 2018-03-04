@@ -14,6 +14,12 @@ namespace KsWare.MSBuildTargets.Tests {
 	public class ProgramTests {
 
 		[TestMethod()]
+		public void Main_NoParameterTest() {
+			var rc = Program.Main(new string [0]);
+			rc.Should().Be(1);
+		}
+
+		[TestMethod()]
 		public void MainTest() {
 			var repoPath = @"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets";
 			var ProjectPath = $@"{repoPath}\src\KsWare.MSBuildTargets.DemoApp\KsWare.MSBuildTargets.DemoApp.csproj";
@@ -24,9 +30,9 @@ namespace KsWare.MSBuildTargets.Tests {
 			if (!File.Exists(ProjectPath) || !File.Exists(TargetPath)) 
 				Assert.Inconclusive("Demo project path not found.");
 
-			var rc=Program.Main(new[] {"-pp", ProjectPath, "-cn", ConfigurationName, "-pn", PlatformName, "-tp", TargetPath});
+			var rc=Program.Main(new[] {"-bt", "AfterBuild", "-pp", ProjectPath, "-cn", ConfigurationName, "-pn", PlatformName, "-tp", TargetPath});
 
-			Assert.That.Variable(rc).Should().Be(0);
+			rc.Should().Be(0);
 		}
 	}
 }

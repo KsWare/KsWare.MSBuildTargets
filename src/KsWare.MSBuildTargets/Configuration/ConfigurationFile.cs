@@ -3,39 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Xml.Serialization;
-using KsWare.MSBuildTargets.Commands;
 using KsWare.MSBuildTargets.Internal;
-using NuGet.Versioning;
 using N =  KsWare.MSBuildTargets.Program.N;
 
-namespace KsWare.MSBuildTargets {
+namespace KsWare.MSBuildTargets.Configuration {
 
-	public class Configuration {
-
-		private static readonly XmlSerializer Serializer=new XmlSerializer(typeof(Configuration));
-
-		private static readonly string DefaultFileName = "KsWare.MSBuildTargets.config";
-
-		[XmlIgnore]
-		public Configuration Parent { get; set; }
-
-		[XmlIgnore]
-		public string FileName { get; set; }
+	public partial class ConfigurationFile {
 
 		[XmlIgnore]
 		public List<Property> GlobalProperties { get; set; }
 
-		[XmlAttribute]
-		public string FileVersion { get; set; } = "1.0";
-
 		public string GetProperty(string propertyName) {
 			var buildConfigurationName = GlobalProperties.GetValue(N.IDE.ConfigurationName);
+			var target                 = GlobalProperties.GetValue(N.Target);
 
 			if(GlobalProperties!=null && GlobalProperties.HasProperty(propertyName)) return GlobalProperties.GetValue(propertyName);
 
-			var bc=GetBuildConfiguration(buildConfigurationName, propertyName, true);
+			var bc=GetBuildConfiguration(target, buildConfigurationName, propertyName, true);
 			if (bc == null) return null; // no matching build configuration found
 			var v = bc.Properties.GetValue(propertyName);
 			if (v != null) return v;
@@ -44,43 +29,63 @@ namespace KsWare.MSBuildTargets {
 				default: return null;
 			}
 		}
+	}
 
-		private BuildConfiguration GetBuildConfiguration(string buildConfigurationName, string propertyName, bool recursive=false) {
-			if (buildConfigurationName == null) {
-				var bc = BuildConfigurations.Get(null);
-				if (bc !=null && propertyName == null) return bc;
-				if (bc != null && bc.Properties.HasProperty(propertyName)) return bc;
-				if (bc == null && (!recursive || Parent == null)) return null;
-				return Parent?.GetBuildConfiguration(null, propertyName, true);
-			}
-			else {
-				var bc = BuildConfigurations.Get(buildConfigurationName);
+
+	[XmlRoot("Configuration")]
+	public partial class ConfigurationFile {
+
+		private static readonly XmlSerializer Serializer=new XmlSerializer(typeof(ConfigurationFile));
+
+		private static readonly string DefaultFileName = "KsWare.MSBuildTargets.config";
+
+		[XmlIgnore]
+		public ConfigurationFile Parent { get; set; }
+
+		[XmlIgnore]
+		public string FileName { get; set; }
+
+		[XmlAttribute]
+		public string SchemaVersion { get; set; } = "1.0";
+
+		private BuildConfiguration GetBuildConfiguration(string target, string buildConfigurationName, string propertyName, bool recursive=false) {
+			if(target==null && buildConfigurationName!=null) throw new ArgumentNullException(nameof(target));
+			BuildConfiguration bc;
+			if (target != null && buildConfigurationName != null) goto A;
+			if (target != null) goto B;
+			goto C;
+
+			A:
+				bc = BuildConfigurations.Get(target, buildConfigurationName);
 				if (bc != null && propertyName == null) return bc;
 				if (bc != null && bc.Properties.HasProperty(propertyName)) return bc;
-				bc = BuildConfigurations.Get(null);
+			B:
+				bc = BuildConfigurations.Get(target, null);
 				if (bc != null && propertyName == null) return bc;
 				if (bc != null && bc.Properties.HasProperty(propertyName)) return bc;
-				if (bc == null && (!recursive || Parent == null)) return null;
-				return Parent?.GetBuildConfiguration(buildConfigurationName, propertyName, true);
-			}
+			C:
+				bc = BuildConfigurations.Get(null, null);
+				if (bc != null && propertyName == null) return bc;
+				if (bc != null && bc.Properties.HasProperty(propertyName)) return bc;
+
+				if (bc == null && !recursive || Parent == null) return null;
+				return Parent?.GetBuildConfiguration(target, buildConfigurationName, propertyName, true);
 		}
 
 		[XmlElement("BuildConfiguration")]
 		public List<BuildConfiguration> BuildConfigurations { get; set; } = new List<BuildConfiguration>();
 
-		
-
-		public static Configuration Load(string directory) {
+		public static ConfigurationFile Load(string directory) {
 			var path = Path.Combine(directory, DefaultFileName);
 			if (!File.Exists(path)) return null;
-			Configuration configuration;
-			using (var r = File.OpenText(path)) configuration = (Configuration) Serializer.Deserialize(r);
+			ConfigurationFile configuration;
+			using (var r = File.OpenText(path)) configuration = (ConfigurationFile) Serializer.Deserialize(r);
 			configuration.FileName = path;
 			return configuration;
 		}
 
-		public static Configuration LoadRecursive(string directory) {
-			var list = new List<Configuration>();
+		public static ConfigurationFile LoadRecursive(string directory) {
+			var list = new List<ConfigurationFile>();
 			var d    = directory;
 			while (true) {
 				var cfg =Load(d);
@@ -101,7 +106,7 @@ namespace KsWare.MSBuildTargets {
 		}
 
 		public static void SaveSample() {
-			var conf=new Configuration {
+			var conf=new ConfigurationFile {
 				BuildConfigurations = {
 					new BuildConfiguration {
 						Properties = {
@@ -130,22 +135,31 @@ namespace KsWare.MSBuildTargets {
 			using (var w=File.CreateText(path)) Serializer.Serialize(w,conf);
 		}
 
-		public List<string> GetCommands(string buildConfigurationName, bool recursive = false) {
+		public List<Command> GetCommands(string target, string buildConfigurationName, bool recursive = false) {
+			if(target==null && buildConfigurationName != null) throw new ArgumentNullException(nameof(target));
 
-			if (buildConfigurationName == null) {
-				var bc = BuildConfigurations.Get(null);
-				if (bc !=null && bc.Commands.Count>0) return bc.Commands;
-				if (bc == null && (!recursive || Parent == null)) return null;
-				return Parent.GetCommands(null, true);
-			}
-			else {
-				var bc = BuildConfigurations.Get(buildConfigurationName);
-				if (bc != null && bc.Commands.Count > 0) return bc.Commands;
-				if (bc == null) bc = BuildConfigurations.Get(null);
-				if (bc != null && bc.Commands.Count > 0) return bc.Commands;
-				if (bc == null && (!recursive || Parent == null)) return null;
-				return Parent.GetCommands(null, true);
-			}
+			BuildConfiguration bc = null;
+
+			// target + buildConfigurationName
+			// target
+			// -
+
+			if (target != null && buildConfigurationName != null) goto A;
+			if (target != null) goto B;
+			goto C;
+
+			A:
+			if (bc == null) bc = BuildConfigurations.Get(target, buildConfigurationName);
+			if (bc != null && bc.Commands.Count > 0) return bc.Commands;
+			B:
+			if (bc == null) bc = BuildConfigurations.Get(target, null);
+			if (bc != null && bc.Commands.Count > 0) return bc.Commands;
+			C:
+			if (bc == null) bc = BuildConfigurations.Get(null, null);
+			if (bc != null && bc.Commands.Count > 0) return bc.Commands;
+
+			if (bc == null && !recursive || Parent == null) return null;
+			return Parent.GetCommands(target, buildConfigurationName, true);
 		}
 	}
 

@@ -20,3 +20,4 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("0.1.78")]
 [assembly: AssemblyFileVersion("0.1.78")]
+#warning --- BuildIsRunning ---

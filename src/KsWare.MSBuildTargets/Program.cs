@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FluentAssertions;
 using KsWare.MSBuildTargets.Commands;
+using KsWare.MSBuildTargets.Configuration;
 using KsWare.MSBuildTargets.Internal;
 
 namespace KsWare.MSBuildTargets {
@@ -15,7 +18,7 @@ namespace KsWare.MSBuildTargets {
 	public class Program {
 		// TODO: load configuration file
 
-		public static Configuration Configuration = new Configuration();
+		public static ConfigurationFile Configuration = new ConfigurationFile();
 		public static bool TestMode = false;
 
 		public static int Main(string[] args) {
@@ -23,6 +26,7 @@ namespace KsWare.MSBuildTargets {
 			if (args.Length > 0 && args[0].StartsWith("debug")) {
 				switch (args[0]) {
 					case "debug1": args=new []{
+							"-bt","AfterBuild",
 							"-pp",@"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\DemoApp\DemoApp.csproj",
 							"-cn", "Release",
 							"-pn","Any CPU",
@@ -31,6 +35,7 @@ namespace KsWare.MSBuildTargets {
 						break;
 					case "debug2":
 						args = new[]{
+							"-bt","AfterBuild",
 							"-pp",@"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj",
 							"-cn", "Debug",
 							"-pn","Any CPU",
@@ -40,19 +45,19 @@ namespace KsWare.MSBuildTargets {
 				}
 			}
 
-			var properties = new List<Property>();
+			var properties = new List<ConfigurationFile.Property>();
 
-			var check = new bool[4];
 			for (int i = 0; i < args.Length; i++) {
 				var param = args[i];
 				var paramL = args[i].ToLowerInvariant();
 
 				switch (paramL) {
 					case "-test": TestMode = true; break;
-					case "-pp": check[0]=true; properties.Set(N.IDE.ProjectPath, args[++i]); break;
-					case "-cn": check[1]=true; properties.Set(N.IDE.ConfigurationName, args[++i]); break;
-					case "-pn": check[2]=true; properties.Set(N.IDE.PlatformName, args[++i]); break;
-					case "-tp": check[3]=true; properties.Set(N.IDE.TargetPath, args[++i]); break;
+					case "-bt": properties.Set(N.Target, args[++i]); break;
+					case "-pp": properties.Set(N.IDE.ProjectPath, args[++i]); break;
+					case "-cn": properties.Set(N.IDE.ConfigurationName, args[++i]); break;
+					case "-pn": properties.Set(N.IDE.PlatformName, args[++i]); break;
+					case "-tp": properties.Set(N.IDE.TargetPath, args[++i]); break;
 //					case "-version": Configuration.Version = args[++i]; break;
 //					case "-suffix": Configuration.Suffix = args[++i]; break;
 //					case "-outputdirectory": Configuration.OutputDirectory = args[++i]; break;
@@ -60,19 +65,31 @@ namespace KsWare.MSBuildTargets {
 				}
 			}
 
-			if (check.Any(c=>c==false)) {
-				Console.WriteLine("Usage: KsWare.MSBuildTargets.exe -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)");
-				Environment.Exit(1);
+			try {
+				//TODO message .. Expected properties.GetValue(N.IDE.ProjectPath) not to be <null> or empty because Project path not specified!, but found <null>.
+				properties.GetValue(N.Target)?.ToLowerInvariant().Should().BeOneOf("Target is invalid!", "beforebuild", "afterbuild");
+				properties.GetValue(N.IDE.ProjectPath).Should().NotBeNullOrEmpty("Project path not specified!");
+				File.Exists(properties.GetValue(N.IDE.ProjectPath)).Should().BeTrue("Project path not found!");
+				properties.GetValue(N.IDE.TargetPath).Should().NotBeNullOrEmpty("Target path not specified!");
+				properties.GetValue(N.IDE.ConfigurationName).Should().NotBeNullOrEmpty("Configuration name not specified!");
+				properties.GetValue(N.IDE.PlatformName).Should().NotBeNullOrEmpty("Platform name not specified!");
+			}
+			catch (Exception ex) {
+				Console.WriteLine("Usage: KsWare.MSBuildTargets.exe -bt BeforeBuild -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)");
+				Console.Error.WriteLine(ex.Message);
+				if(Assembly.GetEntryAssembly()==Assembly.GetExecutingAssembly()) Environment.Exit(1);
+				return 1;
 			}
 
 			var directory = Path.GetDirectoryName(properties.GetValue(N.IDE.ProjectPath));
-			Configuration = Configuration.LoadRecursive(directory);
+			Configuration = ConfigurationFile.LoadRecursive(directory);
 			Configuration.GlobalProperties = properties;
 
-			var commands = Configuration.GetCommands(properties.GetValue(N.IDE.ConfigurationName), true);
+			var commands = Configuration.GetCommands(properties.GetValue(N.Target), properties.GetValue(N.IDE.ConfigurationName), true);
 			foreach (var command in commands) {
-				if(string.IsNullOrWhiteSpace(command)) continue;
-				var result = CallCommand(command);
+				if (command.Flags.Contains("ignore", StringComparer.OrdinalIgnoreCase)) continue;
+				if(string.IsNullOrWhiteSpace(command.CommandLine)) continue;
+				var result = CallCommand(command.CommandLine);
 				if (result != 0) return result;
 			}
 			return 0;
@@ -141,7 +158,7 @@ namespace KsWare.MSBuildTargets {
 			return result;
 		}
 		
-		private static string GetPackagePath(Configuration configuration) {
+		private static string GetPackagePath(ConfigurationFile configuration) {
 			var outputDirectory = configuration.GetProperty(N.NuGet.Pack.OutputDirectory);
 			var targetName= Path.GetFileNameWithoutExtension(configuration.GetProperty(N.IDE.TargetPath));
 			var d = new DirectoryInfo(outputDirectory);
@@ -191,6 +208,8 @@ namespace KsWare.MSBuildTargets {
 		public static class N {
 
 			public static class IDE {
+				private const string FullName = nameof(IDE);
+
 				/* https://msdn.microsoft.com/en-us/library/c02as0cs.aspx
 				$(RemoteMachine)	Set to the value of the Remote Machine property on the Debug property page. See Changing Project Settings for a C/C++ Debug Configuration for more information.
 				$(Configuration)	The name of the current project configuration, for example, "Debug".
@@ -240,36 +259,43 @@ namespace KsWare.MSBuildTargets {
 				/// <summary>
 				/// The absolute path name of the project (defined as drive + path + base name + file extension).
 				/// </summary>
-				public const string ProjectPath = "IDE.ProjectPath";
+				public const string ProjectPath = FullName + "." + nameof(ProjectPath);
 
 				/// <summary>
 				/// The name of the current project configuration, for example, "Debug".
 				/// </summary>
-				public const string ConfigurationName = "IDE.ConfigurationName";
+				public const string ConfigurationName = FullName + "." + nameof(ConfigurationName);
 
 				/// <summary>
 				/// The name of current project platform, for example, "Win32".
 				/// </summary>
-				public const string PlatformName = "IDE.PlatformName";
+				public const string PlatformName = FullName + "." + nameof(PlatformName);
 
 				/// <summary>
 				/// The absolute path name of the primary output file for the build (defined as drive + path + base name + file extension).
 				/// </summary>
-				public const string TargetPath = "IDE.TargetPath";
+				public const string TargetPath = FullName + "." + nameof(TargetPath);
 			}
 
 			public static class NuGet {
+				private const string FullName = nameof(NuGet);
 
+				public static class Pack {
+					// ReSharper disable once MemberHidesStaticFromOuterClass
+					private const string FullName = NuGet.FullName + "." + nameof(Pack);
 
-				public class Pack {
-
-					public const string OutputDirectory = "NuGet.Pack.OutputDirectory";
+					public const string OutputDirectory = FullName + "." + nameof(OutputDirectory);
 				}
 
-				public class Push {
-					public const string PackagePath = "NuGet.Push.PackagePath";
+				public static class Push {
+					// ReSharper disable once MemberHidesStaticFromOuterClass
+					private const string FullName = NuGet.FullName + "." + nameof(Push);
+
+					public const string PackagePath = FullName + "." + nameof(PackagePath);
 				}
 			}
+
+			public const string Target = nameof(Target);
 		}
 
 		public static class n {

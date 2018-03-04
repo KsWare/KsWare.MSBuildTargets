@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema
+  id="XMLSchema1"
+  targetNamespace="http://ksware.de/KsWare.MSBuildTargets/Configuration.xsd"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  xmlns="http://ksware.de/KsWare.MSBuildTargets/Configuration.xsd"
+  xmlns:mstns="http://ksware.de/KsWare.MSBuildTargets/Configuration.xsd"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Property">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="Name" use="optional" />
+          <xs:attribute type="xs:string" name="Value" use="optional" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Command">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute type="xs:string" name="Flags" use="optional" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BuildConfiguration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Property" maxOccurs="unbounded" minOccurs="0" />
+        <xs:element ref="Command" maxOccurs="unbounded" minOccurs="0" />
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="Target" use="optional" />
+      <xs:attribute type="xs:string" name="Configuration" use="optional" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BuildConfiguration" maxOccurs="unbounded" minOccurs="0" />
+      </xs:sequence>
+      <xs:attribute type="xs:string" name="SchemaVersion" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,17 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PrepareForRunDependsOn>
-      $(PrepareForRunDependsOn);
-      __BuildNuGetPackage;
-    </PrepareForRunDependsOn>
+    <BuildDependsOn>
+      KsWare_MSBuildTargets_BeforeBuild;
+      $(BuildDependsOn);
+      KsWare_MSBuildTargets_AfterBuild;
+    </BuildDependsOn>
+    <ToolsPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\tools\'))</ToolsPath>
+    <ToolCommand>$(ToolsPath)KsWare.MSBuildTargets.exe</ToolCommand>
   </PropertyGroup>
-  <Target Name="__BuildNuGetPackage" Condition="'$(Configuration)' == 'Debug' ">
+  <Target Name="KsWare_MSBuildTargets_BeforeBuild">
+    <Message Text="---Target: KsWare_MSBuildTargets_BeforeBuild---" Importance="High" />
     <PropertyGroup>
-      <ThisFilePath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\tools\'))</ThisFilePath>
-      <NuGetCommand>$(ThisFilePath)KsWare.MSBuildTargets.exe</NuGetCommand>
-      <BuildCommand>"$(NuGetCommand)" -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)</BuildCommand>
+      <BuildCommand>"$(ToolCommand)" -bt BeforeBuild -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)</BuildCommand>
     </PropertyGroup>
+    <Message Text="$(BuildCommand)" Importance="High" />
+    <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" WorkingDirectory="$(ProjectDir)" />
+  </Target>
+  <Target Name="KsWare_MSBuildTargets_AfterBuild">
+    <PropertyGroup>
+      <BuildCommand>"$(ToolCommand)" -bt AfterBuild -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)</BuildCommand>
+    </PropertyGroup>
+    <Message Text="---Target: KsWare_MSBuildTargets_AfterBuild---" Importance="High" />
     <Message Text="$(BuildCommand)" Importance="High" />
     <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" WorkingDirectory="$(ProjectDir)" />
   </Target>

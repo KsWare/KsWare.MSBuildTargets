@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FluentAssertThatExtensions.cs" />
+    <Compile Include="Internal\BuildConfigurationCollectionExtensionTests.cs" />
     <Compile Include="Internal\HelperTests.cs" />
     <Compile Include="Nuget\RestApiV3\NuGetApiClientV3Tests.cs" />
     <Compile Include="ProgramTests.cs" />

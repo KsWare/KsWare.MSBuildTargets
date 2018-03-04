@@ -60,12 +60,12 @@ namespace KsWare.MSBuildTargets.Internal {
 				.Where(s=>regex.IsMatch(s))										// filter valid versions "1.2.3-xyz+abc"
 				.Select(SemanticVersion.Parse);									// convert to SemanticVersion
 
-			var a = Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg");
-			var b = a.Select(Path.GetFileNameWithoutExtension);
-			var c = b.Select(s => s.Substring(targetName.Length+1));
-			var d = c.Where(s => regex.IsMatch(s));
-			var e = d.Select(SemanticVersion.Parse);
-			var f = e.OrderBy(v => v).ToArray();
+//			var a = Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg");
+//			var b = a.Select(Path.GetFileNameWithoutExtension);
+//			var c = b.Select(s => s.Substring(targetName.Length+1));
+//			var d = c.Where(s => regex.IsMatch(s));
+//			var e = d.Select(SemanticVersion.Parse);
+//			var f = e.OrderBy(v => v).ToArray();
 
 			var onlineVersions= GetExistingVersionsNugetOrg(target);
 
@@ -178,41 +178,17 @@ namespace KsWare.MSBuildTargets.Internal {
 		}
 
 		public static string[] FindFiles(string directory, string globPattern) {
-			// https://stackoverflow.com/questions/188892/glob-pattern-matching-in-net
-//			var pattern = "^(?imnx-s:"+Regex.Escape(globPattern
-//					              .Replace(@"\**\", "\t4\t")
-//					              .Replace("**", "\t1\t")
-//					              .Replace("*", "\t2\t")
-//					              .Replace("?", "\t3\t"))
-//			.Replace(@"\t1\t", ".*?")
-//				              .Replace(@"\t2\t", "[^\\\\]*?")
-//				              .Replace(@"\t3\t", "[^\\\\]")
-//				                          .Replace(@"\t4\t", @"(\\|\\.*?/)")
-//			                          +"$)";
-//			// **/logs/debug.log				..$
-//			// *.log							..$
-//			// /debug.log						^..$
-//			// debug.log						(^|\\)..$			
-//			// logs/**/debug.log		/**/ => (/|/.*?/)
-//			// logs/*day/debug.log
-//			// logs/debug.log				=> ^..$						=> root/logs/debug.log
-//			// /logs/debug.log				=> ^..$						=> root/logs/debug.log
-
 			var glob    = Glob.Parse(globPattern);
+			var options = SearchOption.AllDirectories;
+			var startDirectory = directory;
+			// TODO optimize search path
 
 			var files=new List<string>();
-			var d = directory.EndsWith("\\") ? directory : directory + "\\";
 			var l1 = directory.EndsWith("\\") ? directory.Length : directory.Length + 1; // root with backslash
-			var l0 = directory.EndsWith("\\") ? directory.Length-1 : directory.Length; // root w/o backslash
-			foreach (var file in Directory.EnumerateFiles(directory,"*", SearchOption.AllDirectories)) {
-//				var relativePath = file.Substring(l1);
-//				if(Regex.IsMatch(relativePath,pattern)) files.Add(file);
+			foreach (var file in Directory.EnumerateFiles(startDirectory,"*", options)) {
 				var relativePath = file.Substring(l1);
 				Debug.WriteLine(relativePath);
-				if (glob.IsMatch(relativePath)) {
-					files.Add(file);
-					Debug.WriteLine($"*Match");
-				}
+				if (glob.IsMatch(relativePath)) files.Add(file);
 			}
 			return files.ToArray();
 		}
@@ -244,6 +220,32 @@ namespace KsWare.MSBuildTargets.Internal {
 			if (!string.IsNullOrWhiteSpace(assemblyInformationalVersion))
 				Regex.Replace(text, @"(?msnx-i:(?<=^\s*)\[assembly:\s*AssemblyVersion\s*\(\s*""[^""]*?""\)\s*\])",
 					$"[assembly: AssemblyInformationalVersion(\"{assemblyInformationalVersion}\")]");
+		}
+
+		/// <summary>
+		/// Splits a semicolon separated string.
+		/// </summary>
+		/// <param name="value">The value to split.</param>
+		/// <returns>The separated string.</returns>
+		/// <seealso cref="JoinSemicolon"/>
+		public static string[] SplitSemicolon(string value) {
+			if(string.IsNullOrWhiteSpace(value)) return new string[0];
+			return value.Split(new [] {";"}, StringSplitOptions.RemoveEmptyEntries)
+				.Select(s => s.Trim())
+				.Where(s => s != string.Empty)
+				.ToArray();
+		}
+
+		/// <summary>
+		/// Joins the values to a semicolon separated string.
+		/// </summary>
+		/// <param name="values">The values.</param>
+		/// <returns>A semicolon separated string.</returns>
+		/// <seealso cref="JoinSemicolon"/>
+		public static string JoinSemicolon(string[] values) {
+			var cleanValues = values?.Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+			if (cleanValues == null || cleanValues.Length == 0) return null;
+			return string.Join(";", cleanValues);
 		}
 	}
 

@@ -1,8 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using FluentAssertions;
 using KsWare.MSBuildTargets.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace KsWare.MSBuildTargets.Internal.Tests {
+
+}
 
 namespace KsWare.MSBuildTargets.Tests.Internal {
 
@@ -54,10 +60,10 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 
 		[TestMethod()]
 		public void FindFilesTest() {
-			var directory = @"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\src";
+			var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..";
 			var globPattern = @"**\AssemblyInfo.*";
 			var files=Helper.FindFiles(directory, globPattern);
-			Assert.AreEqual(4,files.Length);
+			Assert.AreEqual(3,files.Length);
 		}
 
 		[TestMethod()]
@@ -68,5 +74,37 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 			Assert.ThrowsException<DirectoryNotFoundException>(() => Helper.GetExistingVersions("KsWare.MSBuildTargets", @"X:\NonExistingFolder\Gfavc6567"));
 		}
 
+		[DataTestMethod]
+		[DataRow(null,     0)]
+		[DataRow("",       0)]
+		[DataRow(" ",      0)]
+		[DataRow(";",      0)]
+		[DataRow("; ",     0)]
+		[DataRow("; ; ",   0)]
+		[DataRow("a",      1)]
+		[DataRow("a;",     1)]
+		[DataRow("a;;",    1)]
+		[DataRow("a; ;",   1)]
+		[DataRow(";a",     1)]
+		[DataRow(";a;",    1)]
+		[DataRow("a;b",    2)]
+		[DataRow(";a;b",   2)]
+		[DataRow("a;b;",   2)]
+		[DataRow(";a;b;;", 2)]
+		[DataRow("a;;b",   2)]
+		public void SplitSemicolonTest(string value, int count) { Helper.SplitSemicolon(value).Should().HaveCount(count); }
+
+		[DataTestMethod]
+		[DataRow(null, null)]
+		[DataRow(new string[0], null)]
+		[DataRow(new[]{""}, null)]
+		[DataRow(new[] {"",null}, null)]
+		[DataRow(new[] {" "}, null)]
+		[DataRow(new[] {"a"}, "a")]
+		[DataRow(new[] {"a","b"}, "a;b")]
+		[DataRow(new[] {" ", "a", "b", null, ""}, "a;b")]
+		public void JoinSemicolonTest(string[] values, string expected) {
+			Helper.JoinSemicolon(values).Should().Be(expected);
+		}
 	}
 }
