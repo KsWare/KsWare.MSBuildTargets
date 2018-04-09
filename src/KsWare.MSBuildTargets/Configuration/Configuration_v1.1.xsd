@@ -34,6 +34,7 @@
       </xs:sequence>
       <xs:attribute type="xs:string" name="Target" use="optional" />
       <xs:attribute type="xs:string" name="Configuration" use="optional" />
+      <xs:attribute type="xs:string" name="Condition" use="optional" />
     </xs:complexType>
   </xs:element>
   <xs:element name="Configuration">

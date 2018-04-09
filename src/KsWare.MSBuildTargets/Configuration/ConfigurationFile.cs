@@ -46,7 +46,7 @@ namespace KsWare.MSBuildTargets.Configuration {
 		public string FileName { get; set; }
 
 		[XmlAttribute]
-		public string SchemaVersion { get; set; } = "1.0";
+		public string SchemaVersion { get; set; } = "1.1";
 
 		private BuildConfiguration GetBuildConfiguration(string target, string buildConfigurationName, string propertyName, bool recursive=false) {
 			if(target==null && buildConfigurationName!=null) throw new ArgumentNullException(nameof(target));

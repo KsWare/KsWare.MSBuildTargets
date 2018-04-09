@@ -101,6 +101,17 @@ namespace KsWare.MSBuildTargets.Configuration {
 			[XmlIgnore]
 			public string[] Platforms => Helper.SplitSemicolon(Platform);
 
+			
+			[XmlAttribute]
+			public string Condition { get; set; }
+
+			
+			[XmlIgnore]
+			public string[] Conditions => Helper.SplitSemicolon(Configuration);
+
+			[XmlIgnore]
+			public bool IsConditionIsTrue => ConditionParser.IsTrue(Condition);
+
 			/// <summary>
 			/// Gets or sets the <see cref="Property"/>s.
 			/// </summary>

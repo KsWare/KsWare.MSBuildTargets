@@ -19,7 +19,8 @@ namespace KsWare.MSBuildTargets.Internal {
 			return col.LastOrDefault(p =>
 				IsMatch(target, p.Targets) && 
 				p.Configuration == null &&
-				p.Platform      == null);
+				p.Platform      == null &&
+				p.IsConditionIsTrue);
 		}
 
 		/// <summary>
@@ -34,7 +35,8 @@ namespace KsWare.MSBuildTargets.Internal {
 			return col.LastOrDefault(p =>
 				IsMatch(target,                 p.Targets       ) &&
 				IsMatch(buildConfigurationName, p.Configurations) &&
-				p.Platform                                == null);
+				p.Platform                                == null &&
+				p.IsConditionIsTrue);
 		}
 
 		/// <summary>
@@ -52,7 +54,8 @@ namespace KsWare.MSBuildTargets.Internal {
 			return col.LastOrDefault(p => 
 				IsMatch(target,                 p.Targets       ) &&
 			    IsMatch(buildConfigurationName, p.Configurations) && 
-				IsMatch(platformName,           p.Platforms     ));
+				IsMatch(platformName,           p.Platforms     ) && 
+				p.IsConditionIsTrue);
 		}
 
 		/// <summary>
