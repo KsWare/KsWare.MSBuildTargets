@@ -20,7 +20,7 @@
     <description>$description$</description>
     <developmentDependency>false</developmentDependency>
     <releaseNotes>https://raw.githubusercontent.com/$author$/$id$/master/ReleaseNotes.md</releaseNotes>
-    <copyright>Copyright 2018 by $author$. All rights reserved.</copyright>
+    <copyright>Copyright 2019 by $author$. All rights reserved.</copyright>
     <tags>$author$</tags>
   </metadata>
 </package>
