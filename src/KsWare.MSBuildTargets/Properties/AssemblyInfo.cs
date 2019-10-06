@@ -17,8 +17,8 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("a8d1f8b9-3d84-46c0-b347-1fc7960ac8a2")]
 
-[assembly: AssemblyVersion("0.2.7")]
-[assembly: AssemblyFileVersion("0.2.7")]
-[assembly: AssemblyInformationalVersion("0.2.7+20190728225247")]
+[assembly: AssemblyVersion("0.3.12")]
+[assembly: AssemblyFileVersion("0.3.12")]
+[assembly: AssemblyInformationalVersion("0.3.12+20191006184919")]
 
 [assembly: InternalsVisibleTo("KsWare.MSBuildTargets.Tests")]
