@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 using KsWare.MSBuildTargets.Internal;
 using N =  KsWare.MSBuildTargets.Program.N;
 
@@ -135,7 +137,10 @@ namespace KsWare.MSBuildTargets.Configuration {
 			using (var w=File.CreateText(path)) Serializer.Serialize(w,conf);
 		}
 
-		public List<Command> GetCommands(string target, string buildConfigurationName, bool recursive = false) {
+		[NotNull]
+		[SuppressMessage("ReSharper", "FlagArgument", Justification = "ignore")]
+		[SuppressMessage("ReSharper", "MethodTooLong", Justification = "ignore")]
+		public List<Command> GetCommands([CanBeNull] string target, [CanBeNull] string buildConfigurationName, bool recursive = false) {
 			if(target==null && buildConfigurationName != null) throw new ArgumentNullException(nameof(target));
 
 			BuildConfiguration bc = null;
@@ -158,7 +163,7 @@ namespace KsWare.MSBuildTargets.Configuration {
 			if (bc == null) bc = BuildConfigurations.Get(null, null);
 			if (bc != null && bc.Commands.Count > 0) return bc.Commands;
 
-			if (bc == null && !recursive || Parent == null) return null;
+			if (bc == null && !recursive || Parent == null) return new List<Command>();
 			return Parent.GetCommands(target, buildConfigurationName, true);
 		}
 	}

@@ -21,25 +21,36 @@ namespace KsWare.MSBuildTargets {
 		public static ConfigurationFile Configuration = new ConfigurationFile();
 		public static bool TestMode = false;
 
+		//TODO remove debug code in Main
 		public static int Main(string[] args) {
 			// -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)
 			if (args.Length > 0 && args[0].StartsWith("debug")) {
+				var projectRoot = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..");
 				switch (args[0]) {
 					case "debug1": args=new []{
 							"-bt","AfterBuild",
-							"-pp",@"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\DemoApp\DemoApp.csproj",
+							"-pp", $@"{projectRoot}\KsWare.MSBuildTargets.DemoApp\KsWare.MSBuildTargets.DemoApp.csproj",
 							"-cn", "Release",
 							"-pn","Any CPU",
-							"-tp", @"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\DemoApp\bin\debug\KsWare.MSBuildTargets.DemoApp.exe"
+							"-tp", $@"{projectRoot}\KsWare.MSBuildTargets.DemoApp\bin\Debug\KsWare.MSBuildTargets.DemoApp.exe"
 						};
 						break;
 					case "debug2":
 						args = new[]{
 							"-bt","AfterBuild",
-							"-pp",@"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj",
+							"-pp",$@"{projectRoot}\KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj",
 							"-cn", "Debug",
 							"-pn","Any CPU",
-							"-tp", @"D:\Develop\Extern\GitHub.KsWare\KsWare.MSBuildTargets\bin\debug\KsWare.MSBuildTargets.exe"
+							"-tp", $@"{projectRoot}\KsWare.MSBuildTargets\bin\debug\KsWare.MSBuildTargets.exe"
+						};
+						break;
+					case "debug3":
+						args = new[]{
+							"-bt", "BeforeBuild",
+							"-pp", $@"{projectRoot}\KsWare.MSBuildTargets.DemoApp\KsWare.MSBuildTargets.DemoApp.csproj",
+							"-cn", "Debug",
+							"-pn", "Any CPU",
+							"-tp", $@"{projectRoot}\KsWare.MSBuildTargets.DemoApp\bin\Debug\KsWare.MSBuildTargets.DemoApp.exe"
 						};
 						break;
 				}
