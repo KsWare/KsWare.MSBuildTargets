@@ -18,9 +18,9 @@
   </metadata>
   <files>
     <file src="PackageFiles\KsWare.MSBuildTargets.targets" target="build" />
-    <file src="bin\Release\NuGet.exe" target="tools" />
-    <file src="bin\Release\DotNet.Glob.dll" target="tools" />
-    <file src="bin\Release\FluentAssertions.dll" target="tools" />
+    <file src="bin\$configuration$\NuGet.exe" target="tools" />
+    <file src="bin\$configuration$\DotNet.Glob.dll" target="tools" />
+    <file src="bin\$configuration$\FluentAssertions.dll" target="tools" />
     <file src="PackageFiles\nuspec.template" target="tools" />
     <file src="PackageFiles\KsWare.MSBuildTargets.sample.config" target="tools" />
     <file src="PackageFiles\Install.ps1" target="tools" />

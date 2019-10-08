@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KsWare.MSBuildTargets", "KsWare.MSBuildTargets\KsWare.MSBuildTargets.csproj", "{A8D1F8B9-3D84-46C0-B347-1FC7960AC8A2}"
 EndProject
@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{15EAE043-4417-4732-945C-4B797F38E194}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
+		KsWare.MSBuildTargets\KsWare.MSBuildTargets.nuspec = KsWare.MSBuildTargets\KsWare.MSBuildTargets.nuspec
 		..\readme.md = ..\readme.md
 	EndProjectSection
 EndProject

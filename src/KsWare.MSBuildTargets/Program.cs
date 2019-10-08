@@ -4,10 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using FluentAssertions;
 using KsWare.MSBuildTargets.Commands;
 using KsWare.MSBuildTargets.Configuration;
@@ -151,7 +147,7 @@ namespace KsWare.MSBuildTargets {
 					break;
 				}
 				case "push": { // https://docs.microsoft.com/en-us/nuget/tools/cli-ref-push
-					var push = new NugetPush();
+					var push = new NuGetPush();
 					ExpandVariables(ref expandedArgs,"NuGet.Push");
 					ExpandSpecialVariables(push, ref expandedArgs);
 					push.PackagePath = expandedArgs[1];
@@ -203,7 +199,7 @@ namespace KsWare.MSBuildTargets {
 			}
 		}
 
-		private static void ExpandSpecialVariables(NugetPush push, ref string[] args) {
+		private static void ExpandSpecialVariables(NuGetPush push, ref string[] args) {
 			for (int i = 0; i < args.Length; i++) {
 				switch (args[i].ToLowerInvariant()) {
 					case "$packagepath$":
