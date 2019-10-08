@@ -8,6 +8,7 @@ using FluentAssertions;
 using KsWare.MSBuildTargets.Commands;
 using KsWare.MSBuildTargets.Configuration;
 using KsWare.MSBuildTargets.Internal;
+using NuGet;
 
 namespace KsWare.MSBuildTargets {
 
@@ -128,43 +129,49 @@ namespace KsWare.MSBuildTargets {
 
 		private static int CallNuGet(string[] args) {
 			int result;
-			var expandedArgs = args.ToArray(); 
+			var expandedArgs = args.ToList(); 
 
 			switch (expandedArgs[0].ToLower()) {
 				case "pack": { // https://docs.microsoft.com/en-us/nuget/tools/cli-ref-pack
 					var pack = new NuGetPack();
-					ExpandVariables(ref expandedArgs,"NuGet.Pack");
+					ExpandVariables(expandedArgs,"NuGet.Pack");
 					pack.Source = expandedArgs[1];
-					for (int i = 2; i < expandedArgs.Length; i++) {
+					for (int i = 2; i < expandedArgs.Count; i++) {
 						switch (expandedArgs[i].ToLowerInvariant()) {
 							case n.nuget.pack.OutputDirectory: pack.OutputDirectory = expandedArgs[++i]; break;
 						}
 					}
-					ExpandSpecialVariables(pack, ref expandedArgs);
-					result = global::NuGet.CommandLine.Program.Main(expandedArgs);
+					ExpandSpecialVariables(pack, expandedArgs);
+					result = global::NuGet.CommandLine.Program.Main(expandedArgs.ToArray());
 					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
 					if (result==0) Configuration.GlobalProperties.Set(N.NuGet.Push.PackagePath,GetPackagePath(Configuration));
 					break;
 				}
 				case "push": { // https://docs.microsoft.com/en-us/nuget/tools/cli-ref-push
 					var push = new NuGetPush();
-					ExpandVariables(ref expandedArgs,"NuGet.Push");
-					ExpandSpecialVariables(push, ref expandedArgs);
+					AddMandatoryParameters(push, expandedArgs);
+					ExpandVariables(expandedArgs,"NuGet.Push");
+					ExpandSpecialVariables(push, expandedArgs);
 					push.PackagePath = expandedArgs[1];
 					Console.WriteLine("nuget "+Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
-					result = global::NuGet.CommandLine.Program.Main(expandedArgs);
+					result = global::NuGet.CommandLine.Program.Main(expandedArgs.ToArray());
 					break;
 				}
 				default: {
-					ExpandVariables(ref expandedArgs);
+					ExpandVariables(expandedArgs);
 					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
-					result = global::NuGet.CommandLine.Program.Main(expandedArgs);
+					result = global::NuGet.CommandLine.Program.Main(expandedArgs.ToArray());
 					break;
 				}
 			}
 			return result;
 		}
-		
+
+		private static void AddMandatoryParameters(NuGetPush push, IList<string> args) {
+			if (!args.Contains("-Source", StringComparer.OrdinalIgnoreCase))
+				args.AddRange(new[] {"-Source", "$source$"});
+		}
+
 		private static string GetPackagePath(ConfigurationFile configuration) {
 			var outputDirectory = configuration.GetProperty(N.NuGet.Pack.OutputDirectory);
 			var targetName= Path.GetFileNameWithoutExtension(configuration.GetProperty(N.IDE.TargetPath));
@@ -174,8 +181,8 @@ namespace KsWare.MSBuildTargets {
 			return f.FullName;
 		}
 
-		private static void ExpandVariables(ref string[] args, string defaultNamespace=null) {
-			for (int i = 0; i < args.Length; i++) {
+		private static void ExpandVariables(IList<string> args, string defaultNamespace=null) {
+			for (int i = 0; i < args.Count; i++) {
 				var variables = Helper.GetVariables(args[i]);
 				foreach (var variable in variables) {
 					var v = Configuration.GetProperty(variable);
@@ -188,23 +195,22 @@ namespace KsWare.MSBuildTargets {
 			}
 		}
 
-		private static void ExpandSpecialVariables(NuGetPack pack, ref string[] args) {
+		private static void ExpandSpecialVariables(NuGetPack pack, IList<string> args) {
 			var outputDirectory = pack.OutputDirectory??Configuration.GetProperty(N.NuGet.Pack.OutputDirectory); //TODO check null
 			var source = Configuration.GetProperty(N.IDE.TargetPath);
-			for (int i = 0; i < args.Length; i++) {
+			for (int i = 0; i < args.Count; i++) {
 				switch (args[i].ToLowerInvariant()) {
-					case "$incrementci$": args[i] = Helper.IncrementSuffixCI(source,outputDirectory).ToFullString(); break;
+					case "$incrementci$"   : args[i] = Helper.IncrementSuffixCI(source,outputDirectory).ToFullString(); break;
 					case "$incrementpatch$": args[i] = Helper.IncrementPatch(source, outputDirectory).ToFullString(); break;
 				}
 			}
 		}
 
-		private static void ExpandSpecialVariables(NuGetPush push, ref string[] args) {
-			for (int i = 0; i < args.Length; i++) {
+		private static void ExpandSpecialVariables(NuGetPush push, IList<string> args) {
+			for (int i = 0; i < args.Count; i++) {
 				switch (args[i].ToLowerInvariant()) {
-					case "$packagepath$":
-						args[i] = Configuration.GetProperty(N.NuGet.Push.PackagePath);
-						break;
+					case "$packagepath$": args[i] = Configuration.GetProperty(N.NuGet.Push.PackagePath); break;
+					case "$source$"     : args[i] = Configuration.GetProperty(N.NuGet.Push.Source); break;
 				}
 			}
 		}
@@ -299,6 +305,7 @@ namespace KsWare.MSBuildTargets {
 					private const string FullName = NuGet.FullName + "." + nameof(Push);
 
 					public const string PackagePath = FullName + "." + nameof(PackagePath);
+					public const string Source = FullName + "." + nameof(Source);
 				}
 			}
 

@@ -3,6 +3,7 @@
 	public class NuGetPush {
 
 		public string PackagePath { get; set; }
+
 	}
 
 }

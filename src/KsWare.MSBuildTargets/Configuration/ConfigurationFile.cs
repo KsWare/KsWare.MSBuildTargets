@@ -28,6 +28,7 @@ namespace KsWare.MSBuildTargets.Configuration {
 			if (v != null) return v;
 			switch (propertyName) {
 				case N.NuGet.Pack.OutputDirectory: return Path.GetDirectoryName(GetProperty(N.IDE.TargetPath));
+				case N.NuGet.Push.Source         : return "https://api.nuget.org/v3/index.json";
 				default: return null;
 			}
 		}
