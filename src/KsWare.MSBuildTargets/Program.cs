@@ -177,7 +177,7 @@ namespace KsWare.MSBuildTargets {
 			var targetName= Path.GetFileNameWithoutExtension(configuration.GetProperty(N.IDE.TargetPath));
 			var d = new DirectoryInfo(outputDirectory);
 			var f=d.GetFiles($"{targetName}.*.nupkg").Aggregate((curMin, x) =>
-				curMin == null || x.LastWriteTime < curMin.LastWriteTime ? x : curMin);
+				curMin == null || x.LastWriteTime > curMin.LastWriteTime ? x : curMin);
 			return f.FullName;
 		}
 
