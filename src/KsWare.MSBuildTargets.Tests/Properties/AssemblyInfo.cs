@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("KsWare.MSBuildTargets.Tests")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -15,6 +15,6 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("267b3f8d-b100-4084-b030-31f87cbe01f8")]
 
-// [assembly: AssemblyVersion("0.3.12")]
-[assembly: AssemblyVersion("0.3.12")]
-[assembly: AssemblyFileVersion("0.3.12")]
+// [assembly: AssemblyVersion("0.3.13")]
+[assembly: AssemblyVersion("0.3.13")]
+[assembly: AssemblyFileVersion("0.3.13")]

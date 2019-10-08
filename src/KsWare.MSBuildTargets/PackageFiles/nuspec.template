@@ -7,20 +7,23 @@
 	For more info on how to compose a nuspec file see http://docs.nuget.org/create/nuspec-reference 
 	-->
 
-  <metadata>
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>$id$</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/$author$/$id$/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/$author$/$id$</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/$author$/$id$/master/icon.png</iconUrl>
+    <license type="file">LICENSE</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>https://raw.githubusercontent.com/$author$/$id$/master/icon.png</iconUrl>
     <description>$description$</description>
     <developmentDependency>false</developmentDependency>
     <releaseNotes>https://raw.githubusercontent.com/$author$/$id$/master/ReleaseNotes.md</releaseNotes>
     <copyright>Copyright 2019 by $author$. All rights reserved.</copyright>
     <tags>$author$</tags>
   </metadata>
+  <files>
+    <file src="LICENSE*" target="" />
+  </files>
 </package>

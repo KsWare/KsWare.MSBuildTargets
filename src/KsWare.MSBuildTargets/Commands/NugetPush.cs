@@ -1,6 +1,6 @@
 ﻿namespace KsWare.MSBuildTargets.Commands {
 
-	public class NugetPush {
+	public class NuGetPush {
 
 		public string PackagePath { get; set; }
 	}

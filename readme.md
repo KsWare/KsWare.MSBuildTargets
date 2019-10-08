@@ -7,7 +7,7 @@ With this package it is easy to build and create/publish the nuget package with 
 You can configure your Debug build to create a pre-release package with an auto incremented "-CI#####" suffix 
 and your Release build with an auto incremented patch number.
 
-##### Version 0.1.x
+##### Version 0.x.x
  - **For test purposes only. No warranty.**
  - Call NuGet commands
  - Different build configurations
@@ -27,45 +27,46 @@ and your Release build with an auto incremented patch number.
 
 ## Usage
 
-- Add the KsWare.MSBuildTargets nuget package
-- optional edit your project.nuspec
-- create/edit PackageBuilder.config
+- Add the [KsWare.MSBuildTargets](https://www.nuget.org/packages/KsWare.MSBuildTargets/) nuget package
+- optional edit your `project.nuspec`
+- create/edit `KsWare.MSBuildTargets.config`
 - build your project
 
 ## Batch Usage
 
-    set ProjectPath=C:\dev\YourProject\YourProject.csproj
-    set TargetPath=C:\dev\YourProject\bin\release\YourProject.dll
-    KsWare.MSBuildTargets.exe -pp "%ProjectPath%" -cn Release -pn "Any CPU" -tp "%TargetPath%"
-
+```batch
+set ProjectPath=C:\dev\YourProject\YourProject.csproj
+set TargetPath=C:\dev\YourProject\bin\release\YourProject.dll
+KsWare.MSBuildTargets.exe -pp "%ProjectPath%" -cn Release -pn "Any CPU" -tp "%TargetPath%"
+```
 ### Configuration File
 
 The PackageBuilder.config contains the commands and properties.
-
-    <?xml version="1.0" encoding="utf-8"?>
-    <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" FileVersion="1.0">
-      <BuildConfiguration>
-        <Property Name="NuGet.Pack.OutputDirectory" Value="D:\Develop\Packages" />
-        <Property Name="NuGet.Push.ApiKey" Value="your-nuget-api-key-" />
-        <Property Name="SN.KeyFile" Value="D:\Develop\Company.snk" />
-      </BuildConfiguration>
-      <BuildConfiguration Configuration="Debug">
-        <Command>nuget pack $IDE.ProjectPath$ -OutputDirectory $OutputDirectory$ -version $IncrementCI$</Command>
-      </BuildConfiguration>
-      <BuildConfiguration Configuration="Release">
-        <Command>sn -R $IDE.ProjectPath$ $SN.KeyFile$</Command>
-        <Command>nuget pack $IDE.ProjectPath$ -OutputDirectory $OutputDirectory$ -version $IncrementPatch$</Command>
-        <Command>nuget push $PackagePath$ -apikey $ApiKey$</Command>
-      </BuildConfiguration>
-    </Configuration>
-
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" FileVersion="1.0">
+    <BuildConfiguration>
+    <Property Name="NuGet.Pack.OutputDirectory" Value="D:\Develop\Packages" />
+    <Property Name="NuGet.Push.ApiKey" Value="your-nuget-api-key-" />
+    <Property Name="SN.KeyFile" Value="D:\Develop\Company.snk" />
+    </BuildConfiguration>
+    <BuildConfiguration Configuration="Debug">
+    <Command>nuget pack $IDE.ProjectPath$ -OutputDirectory $OutputDirectory$ -version $IncrementCI$</Command>
+    </BuildConfiguration>
+    <BuildConfiguration Configuration="Release">
+    <Command>sn -R $IDE.ProjectPath$ $SN.KeyFile$</Command>
+    <Command>nuget pack $IDE.ProjectPath$ -OutputDirectory $OutputDirectory$ -version $IncrementPatch$</Command>
+    <Command>nuget push $PackagePath$ -apikey $ApiKey$</Command>
+    </BuildConfiguration>
+</Configuration>
+```
 The configuration is hierarchical. That means you can define a config file with more common (or secret) properties (and commands) in a directory with higher level and project specific settings at project level.
-
-    \Develop\  
-     PackageBuilder.config (Master with ApiKey)
-      \Project\  
-       PackageBuilder.config (Project specific)
-
+```
+\Develop\  
+  KsWare.MSBuildTargets.config (Master with ApiKey)
+  \Project\  
+    KsWare.MSBuildTargets.config (Project specific)
+```
 Hierarchical property reading:  
 1. in the matching configuration
 2. in the empty configuration
