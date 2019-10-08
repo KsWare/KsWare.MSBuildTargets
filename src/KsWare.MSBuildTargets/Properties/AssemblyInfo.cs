@@ -10,15 +10,15 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("KsWare")]
 [assembly: AssemblyProduct("KsWare.MSBuildTargets")]
-[assembly: AssemblyCopyright("Copyright © 2018 by KsWare. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2019 by KsWare. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 [assembly: Guid("a8d1f8b9-3d84-46c0-b347-1fc7960ac8a2")]
 
-[assembly: AssemblyVersion("0.2.4")]
-[assembly: AssemblyFileVersion("0.2.4")]
-[assembly: AssemblyInformationalVersion("0.2.4+20180409110133")]
+[assembly: AssemblyVersion("0.3.14")]
+[assembly: AssemblyFileVersion("0.3.14")]
+[assembly: AssemblyInformationalVersion("0.3.14+20191008064423")]
 
 [assembly: InternalsVisibleTo("KsWare.MSBuildTargets.Tests")]
