@@ -5,9 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using FluentAssertions.Specialized;
 using JetBrains.Annotations;
 using KsWare.MSBuildTargets.Internal;
-using N =  KsWare.MSBuildTargets.Program.N;
+using N =  KsWare.MSBuildTargets.N;
 
 namespace KsWare.MSBuildTargets.Configuration {
 
@@ -16,22 +17,42 @@ namespace KsWare.MSBuildTargets.Configuration {
 		[XmlIgnore]
 		public List<Property> GlobalProperties { get; set; }
 
-		public string GetProperty(string propertyName) {
+		public string GetProperty(string propertyName, string defaultNamespace=null) {
+			var v = GetPropertyInternal(propertyName);
+			if (v == null && propertyName.Contains(".")) goto Default;
+			if (v == null && !propertyName.Contains(".") && defaultNamespace == null) goto Default;
+			if (v == null) v = GetPropertyInternal($"{defaultNamespace}.{propertyName}");
+			if (v == null) goto Default;
+			return v;
+
+			Default:
+			var n = propertyName.Contains(".") ? propertyName : $"{defaultNamespace}.{propertyName}";
+			switch (true) {
+				case bool _ when n.Eq(N.NuGet.Pack.OutputDirectory): return Path.GetDirectoryName(GetProperty(N.IDE.TargetPath));
+				case bool _ when n.Eq(N.NuGet.Push.Source): return "https://api.nuget.org/v3/index.json";
+				default: return null;
+			}
+		}
+
+		private string GetPropertyInternal(string propertyName) {
 			var buildConfigurationName = GlobalProperties.GetValue(N.IDE.ConfigurationName);
 			var target                 = GlobalProperties.GetValue(N.Target);
 
 			if(GlobalProperties!=null && GlobalProperties.HasProperty(propertyName)) return GlobalProperties.GetValue(propertyName);
 
 			var bc=GetBuildConfiguration(target, buildConfigurationName, propertyName, true);
-			if (bc == null) return null; // no matching build configuration found
+			if (bc == null) return null; // TODO no matching build configuration found
 			var v = bc.Properties.GetValue(propertyName);
 			if (v != null) return v;
+			//TODO unreachable
 			switch (propertyName) {
 				case N.NuGet.Pack.OutputDirectory: return Path.GetDirectoryName(GetProperty(N.IDE.TargetPath));
 				case N.NuGet.Push.Source         : return "https://api.nuget.org/v3/index.json";
 				default: return null;
 			}
 		}
+
+
 	}
 
 
@@ -51,7 +72,8 @@ namespace KsWare.MSBuildTargets.Configuration {
 		[XmlAttribute]
 		public string SchemaVersion { get; set; } = "1.1";
 
-		private BuildConfiguration GetBuildConfiguration(string target, string buildConfigurationName, string propertyName, bool recursive=false) {
+		[SuppressMessage("ReSharper", "FlagArgument", Justification = "ignore")]
+		private BuildConfiguration GetBuildConfiguration([CanBeNull] string target, [CanBeNull] string buildConfigurationName, [CanBeNull] string propertyName, bool recursive=false) {
 			if(target==null && buildConfigurationName!=null) throw new ArgumentNullException(nameof(target));
 			BuildConfiguration bc;
 			if (target != null && buildConfigurationName != null) goto A;

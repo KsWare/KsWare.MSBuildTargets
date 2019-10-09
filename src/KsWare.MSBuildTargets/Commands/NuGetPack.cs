@@ -1,11 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Xml.Serialization;
+using KsWare.MSBuildTargets.Configuration;
 using KsWare.MSBuildTargets.Internal;
 
 namespace KsWare.MSBuildTargets.Commands {
 
 	public class NuGetPack {
+
+		private readonly ConfigurationFile _configuration;
+		private List<string> _arguments;
+
+		public NuGetPack(string[] args, ConfigurationFile configuration) {
+			_configuration = configuration;
+			_arguments = args.ToList();
+			Helper.ExpandVariables(_arguments, "NuGet.Pack");
+			Source = _arguments[1];
+			for (int i = 2; i < _arguments.Count; i++) {
+				var arg = _arguments[i];
+				switch (true) {
+					case bool _ when arg.Eq(N.NuGet.Pack.OutputDirectory): OutputDirectory = _arguments[++i]; break;
+				}
+			}
+			ExpandSpecialVariables();
+		}
+
+		private NuGetPack() {
+			
+		}
 
 		[XmlIgnore]
 		public string Command { get; set; } = "pack";
@@ -24,7 +48,7 @@ namespace KsWare.MSBuildTargets.Commands {
 
 		public string VersionExpanded {
 			get {
-				switch (Version ?? string.Empty) {
+				switch (Version ?? String.Empty) {
 					case "":
 						return Version;
 					case "IncrementPatch":
@@ -42,7 +66,7 @@ namespace KsWare.MSBuildTargets.Commands {
 
 		public string SuffixExpanded {
 			get {
-				switch (Suffix ?? string.Empty) {
+				switch (Suffix ?? String.Empty) {
 					default:
 						return Suffix;
 				}
@@ -87,8 +111,10 @@ namespace KsWare.MSBuildTargets.Commands {
 		[XmlElement("Options")]
 		public string OptionsXml {
 			get => Helper.JoinSpaceSeparatedVerbatimString(Options);
-			set => Options = string.IsNullOrWhiteSpace(value) ? new List<string>() : Helper.SplitSpaceSeparatedVerbatimString(value);
+			set => Options = String.IsNullOrWhiteSpace(value) ? new List<string>() : Helper.SplitSpaceSeparatedVerbatimString(value);
 		}
+
+		public IEnumerable<string> Arguments => _arguments;
 
 		public static NuGetPack Join(List<NuGetPack> configurations) {
 			var joined = new NuGetPack();
@@ -102,6 +128,19 @@ namespace KsWare.MSBuildTargets.Commands {
 			}
 			return joined;
 		}
+
+		
+		private void ExpandSpecialVariables() {
+			var outputDirectory = OutputDirectory ?? Helper.Configuration.GetProperty(N.NuGet.Pack.OutputDirectory); //TODO check null
+			var source = Helper.Configuration.GetProperty(N.IDE.TargetPath);
+			for (int i = 0; i < _arguments.Count; i++) {
+				switch (_arguments[i].ToLowerInvariant()) {
+					case "$incrementci$": _arguments[i] = Helper.IncrementSuffixCI(source, outputDirectory).ToFullString(); break;
+					case "$incrementpatch$": _arguments[i] = Helper.IncrementPatch(source, outputDirectory).ToFullString(); break;
+				}
+			}
+		}
+
 	}
 
 }

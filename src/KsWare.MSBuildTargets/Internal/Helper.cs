@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotNet.Globbing;
+using KsWare.MSBuildTargets.Configuration;
 using KsWare.MSBuildTargets.Nuget.RestApiV3;
 using NuGet.Versioning;
 
@@ -13,6 +14,8 @@ using NuGet.Versioning;
 namespace KsWare.MSBuildTargets.Internal {
 
 	public static class Helper {
+
+		public static ConfigurationFile Configuration { get; set; }
 
 		/// <summary>
 		/// Splits and unescapes space separated verbatim string.
@@ -38,28 +41,30 @@ namespace KsWare.MSBuildTargets.Internal {
 		/// <para>This is the opposite function from <see cref="SplitSpaceSeparatedVerbatimString"/></para>
 		/// </remarks>
 		public static string JoinSpaceSeparatedVerbatimString(IEnumerable<string> values) {
-			if (values==null || !values.Any()) return null;
+			if (values == null || !values.Any()) return null;
 			var sb = new StringBuilder();
 			foreach (var option in values) {
-				var v        = option;
-				var quote    = option.Contains(' ') || option.Contains('"');
+				var v = option;
+				var quote = option.Contains(' ') || option.Contains('"');
 				if (quote) v = v.Replace("\"", "\"\"");
 				if (quote) v = $"\"{v}\"";
 				sb.Append(" " + v);
 			}
+
 			return sb.ToString(1, sb.Length - 1);
 		}
 
 		public static SemanticVersion[] GetExistingVersions(string target, string outputDirectory) {
-			var regex=new Regex(@"(?imnx-s:\d+\.\d+\.\d+(-[A-Z0-9\.]*)?(\+[A-Z0-9\.]*)?$)"); //TODO test regex
+			var regex = new Regex(@"(?imnx-s:\d+\.\d+\.\d+(-[A-Z0-9\.]*)?(\+[A-Z0-9\.]*)?$)"); //TODO test regex
 			var targetName = GetTargetName(target);
-			 
-			var localVersions= outputDirectory==null ? new SemanticVersion[0]
-				: Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg")	// filter possible files
-				.Select(Path.GetFileNameWithoutExtension)						// trim extension
-				.Select(s=>s.Substring(targetName.Length +1))					// remove target name and .
-				.Where(s=>regex.IsMatch(s))										// filter valid versions "1.2.3-xyz+abc"
-				.Select(SemanticVersion.Parse);									// convert to SemanticVersion
+
+			var localVersions = outputDirectory == null
+				? new SemanticVersion[0]
+				: Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg") // filter possible files
+					.Select(Path.GetFileNameWithoutExtension) // trim extension
+					.Select(s => s.Substring(targetName.Length + 1)) // remove target name and .
+					.Where(s => regex.IsMatch(s)) // filter valid versions "1.2.3-xyz+abc"
+					.Select(SemanticVersion.Parse); // convert to SemanticVersion
 
 //			var a = Directory.GetFiles(outputDirectory, $"{targetName}.*.nupkg");
 //			var b = a.Select(Path.GetFileNameWithoutExtension);
@@ -68,7 +73,7 @@ namespace KsWare.MSBuildTargets.Internal {
 //			var e = d.Select(SemanticVersion.Parse);
 //			var f = e.OrderBy(v => v).ToArray();
 
-			var onlineVersions= GetExistingVersionsNugetOrg(target);
+			var onlineVersions = GetExistingVersionsNugetOrg(target);
 
 			var versions = localVersions.Concat(onlineVersions).OrderBy(v => v).ToArray();
 
@@ -78,9 +83,7 @@ namespace KsWare.MSBuildTargets.Internal {
 		// Get PackageID
 		private static string GetTargetName(string target) {
 			string targetName;
-			if (target.Contains("\\")) {
-				targetName = Path.GetFileNameWithoutExtension(target);
-			}
+			if (target.Contains("\\")) { targetName = Path.GetFileNameWithoutExtension(target); }
 			else {
 				var ext = Path.GetExtension(target)?.ToLowerInvariant();
 				if (ext == ".exe" || ext == ".dll")
@@ -88,11 +91,12 @@ namespace KsWare.MSBuildTargets.Internal {
 				else
 					targetName = target;
 			}
+
 			return targetName;
 		}
 
 		public static SemanticVersion[] GetExistingVersionsNugetOrg(string target) {
-			var result=new NuGetApiClientV3().Search(target, true).Result;
+			var result = new NuGetApiClientV3().Search(target, true).Result;
 			if (result.TotalHits == 0) return new SemanticVersion[0];
 			if (result.TotalHits > 1) throw new ArgumentException("Package name is not unique.");
 
@@ -100,7 +104,7 @@ namespace KsWare.MSBuildTargets.Internal {
 		}
 
 		public static SemanticVersion IncrementMajor(string target, string outputDirectory) {
-			var v   = GetExistingVersions(target, outputDirectory).Last();
+			var v = GetExistingVersions(target, outputDirectory).Last();
 			var newVersion = new SemanticVersion(v.Major + 1, 0, 0, "", v.Metadata);
 			return newVersion;
 		}
@@ -125,24 +129,22 @@ namespace KsWare.MSBuildTargets.Internal {
 					Data = {{"target", target}, {"outputDirectory", outputDirectory}}
 				};
 			SemanticVersion newVersion;
-			if (v.Release == string.Empty) {
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch+1, "CI00001","");
-			}
+			if (v.Release == string.Empty) { newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch + 1, "CI00001", ""); }
 			else if (v.Release.StartsWith("CI")) {
 				var ci = int.Parse(Regex.Match(v.Release, @"\d+$").Value);
 				ci++;
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, $"CI{ci:D5}","");
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch, $"CI{ci:D5}", "");
 			}
 			else {
 				//TODO this will overwrite existing release
-				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch+1, "CI00001", "");
+				newVersion = new SemanticVersion(v.Major, v.Minor, v.Patch + 1, "CI00001", "");
 			}
 
 			return newVersion;
 		}
 
 		public static SemanticVersion ExtractVersion(string nupgk) {
-			var n     = Path.GetFileNameWithoutExtension(nupgk);
+			var n = Path.GetFileNameWithoutExtension(nupgk);
 			var match = Regex.Match(n, @"\d+\.\d+\.\d+(-.+)?$");
 			return SemanticVersion.Parse(match.Value);
 		}
@@ -175,22 +177,23 @@ namespace KsWare.MSBuildTargets.Internal {
 		}
 
 		public static string[] GetVariables(string s) {
-			return Regex.Matches(s, @"(?<=\$)[_\p{L}][\w\.]*(?=\$)").Cast<Match>().Select(m=>m.Value).ToArray();
+			return Regex.Matches(s, @"(?<=\$)[_\p{L}][\w\.]*(?=\$)").Cast<Match>().Select(m => m.Value).ToArray();
 		}
 
 		public static string[] FindFiles(string directory, string globPattern) {
-			var glob    = Glob.Parse(globPattern);
+			var glob = Glob.Parse(globPattern);
 			var options = SearchOption.AllDirectories;
 			var startDirectory = directory;
 			// TODO optimize search path
 
-			var files=new List<string>();
+			var files = new List<string>();
 			var l1 = directory.EndsWith("\\") ? directory.Length : directory.Length + 1; // root with backslash
-			foreach (var file in Directory.EnumerateFiles(startDirectory,"*", options)) {
+			foreach (var file in Directory.EnumerateFiles(startDirectory, "*", options)) {
 				var relativePath = file.Substring(l1);
 				Debug.WriteLine(relativePath);
 				if (glob.IsMatch(relativePath)) files.Add(file);
 			}
+
 			return files.ToArray();
 		}
 
@@ -202,14 +205,11 @@ namespace KsWare.MSBuildTargets.Internal {
 				[assembly: AssemblyFileVersion("0.1.78")]
 				[assembly: AssemblyInformationalVersion("0.1.78")] */
 
-			var files=new List<string>();
+			var files = new List<string>();
 			if (file.Contains("*") || file.Contains("?")) {
 				// **\AssemblyInfo.*
-
 			}
-			else {
-				files.Add(file);
-			}
+			else { files.Add(file); }
 
 			var text = File.ReadAllText(file);
 			if (!string.IsNullOrWhiteSpace(assemblyVersion))
@@ -230,8 +230,8 @@ namespace KsWare.MSBuildTargets.Internal {
 		/// <returns>The separated string.</returns>
 		/// <seealso cref="JoinSemicolon"/>
 		public static string[] SplitSemicolon(string value) {
-			if(string.IsNullOrWhiteSpace(value)) return new string[0];
-			return value.Split(new [] {";"}, StringSplitOptions.RemoveEmptyEntries)
+			if (string.IsNullOrWhiteSpace(value)) return new string[0];
+			return value.Split(new[] {";"}, StringSplitOptions.RemoveEmptyEntries)
 				.Select(s => s.Trim())
 				.Where(s => s != string.Empty)
 				.ToArray();
@@ -248,6 +248,28 @@ namespace KsWare.MSBuildTargets.Internal {
 			if (cleanValues == null || cleanValues.Length == 0) return null;
 			return string.Join(";", cleanValues);
 		}
+
+		public static void ExpandVariables(IList<string> args, string defaultNamespace = null) {
+			for (int i = 0; i < args.Count; i++) {
+				var variables = Helper.GetVariables(args[i]);
+				foreach (var variable in variables) {
+					var v = Configuration.GetProperty(variable, defaultNamespace);
+					if (v == null) continue;
+					args[i] = args[i].Replace($"${variable}$", v);
+				}
+			}
+		}
+
+		//TODO write test
+		public static string GetPackagePath(ConfigurationFile configuration) {
+			var outputDirectory = configuration.GetProperty(N.NuGet.Pack.OutputDirectory);
+			var targetName = Path.GetFileNameWithoutExtension(configuration.GetProperty(N.IDE.TargetPath));
+			var d = new DirectoryInfo(outputDirectory);
+			var f = d.GetFiles($"{targetName}.*.nupkg").Aggregate((curMin, x) =>
+				curMin == null || x.LastWriteTime > curMin.LastWriteTime ? x : curMin);
+			return f.FullName;
+		}
+
 	}
 
 }
