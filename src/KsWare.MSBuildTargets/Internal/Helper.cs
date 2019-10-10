@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -268,6 +269,35 @@ namespace KsWare.MSBuildTargets.Internal {
 			var f = d.GetFiles($"{targetName}.*.nupkg").Aggregate((curMin, x) =>
 				curMin == null || x.LastWriteTime > curMin.LastWriteTime ? x : curMin);
 			return f.FullName;
+		}
+
+		public static string GetFullPath(string fileName) {
+			if (File.Exists(fileName)) return Path.GetFullPath(fileName);
+
+			var values = Environment.GetEnvironmentVariable("PATH");
+			foreach (var path in values.Split(Path.PathSeparator)) {
+				var fullPath = Path.Combine(path, fileName);
+				if (File.Exists(fullPath)) return fullPath;
+			}
+			return null;
+		}
+
+		public static SemanticVersion[] ExtractSemanticVersions(string baseName, IEnumerable<string> namesWithVersion) {
+			if (!namesWithVersion.Any()) return new SemanticVersion[0];
+			var matches = namesWithVersion
+				.Select(n => Path.GetFileName(n))
+				.Select(n => Regex.Match(n, @"^(?<name>.*?)\.(?<version>\d+\.\d.+\d+.*)$"))
+				.Where(m=>m.Groups["name"].Value.Eq(baseName));
+
+			return matches.Select(m => SemanticVersion.Parse(m.Groups["version"].Value)).ToArray();
+		}
+
+		public static string GetNameWithHighestSemanticVersion(string baseName, IEnumerable<string> namesWithVersion) {
+			if (!(namesWithVersion is IList<string> list)) list = namesWithVersion.ToArray();
+			var versions = ExtractSemanticVersions(baseName, list);
+			var max = versions.Max();
+			var index = Array.IndexOf(versions, max);
+			return list[index];
 		}
 
 	}

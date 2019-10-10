@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -105,6 +106,20 @@ namespace KsWare.MSBuildTargets.Tests.Internal {
 		[DataRow(new[] {" ", "a", "b", null, ""}, "a;b")]
 		public void JoinSemicolonTest(string[] values, string expected) {
 			Helper.JoinSemicolon(values).Should().Be(expected);
+		}
+
+		[TestMethod]
+		public void ExtractSemanticVersions() {
+			var versions = Helper.ExtractSemanticVersions("abc", new[] {"abc.1.2.3", "abc.1.3.0"});
+			Assert.AreEqual("1.3.0", versions[1].ToString());
+
+		}
+
+		[TestMethod]
+		public void GetNameWithHighestSemanticVersion() {
+			var max = Helper.GetNameWithHighestSemanticVersion("abc", new[] { "abc.1.2.3", "abc.1.3.0" });
+			Assert.AreEqual("abc.1.3.0",max);
+
 		}
 	}
 }

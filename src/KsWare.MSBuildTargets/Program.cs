@@ -17,7 +17,8 @@ namespace KsWare.MSBuildTargets {
 
 		//TODO remove debug code in Main
 		public static int Main(string[] args) {
-			// -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)
+			// -bt Event -pp $(ProjectPath) -cn $(ConfigurationName) -pn $(PlatformName) -tp $(TargetPath)
+
 			if (args.Length > 0 && args[0].StartsWith("debug")) {
 				var projectRoot = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..");
 				switch (args[0]) {
