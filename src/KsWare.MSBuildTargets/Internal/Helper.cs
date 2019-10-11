@@ -16,7 +16,7 @@ namespace KsWare.MSBuildTargets.Internal {
 
 	public static class Helper {
 
-		public static ConfigurationFile Configuration { get; set; }
+		public static ConfigurationFile Configuration => ConfigurationFile.Instance;
 
 		/// <summary>
 		/// Splits and unescapes space separated verbatim string.
@@ -300,6 +300,25 @@ namespace KsWare.MSBuildTargets.Internal {
 			return list[index];
 		}
 
+		public static string[] UnescapeSecretArguments(IEnumerable<string> args) {
+			// "\u009E" + Value + "\u009C" : Value;
+			var newList=new List<string>();
+			foreach (var arg in args) {
+				var v = arg != null && arg.StartsWith("\u009E") ? arg.Substring(1, arg.Length - 2) : arg;
+				newList.Add(v);
+			}
+			return newList.ToArray();
+		}
+
+		public static string[] HideSecretArguments(IEnumerable<string> args) {
+			// "\u009E" + Value + "\u009C" : Value;
+			var newList = new List<string>();
+			foreach (var arg in args) {
+				var v = arg != null && arg.StartsWith("\u009E") ? "**********" : arg;
+				newList.Add(v);
+			}
+			return newList.ToArray();
+		}
 	}
 
 }

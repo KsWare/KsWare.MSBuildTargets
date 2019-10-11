@@ -82,6 +82,7 @@
     <Compile Include="Commands\NuGetPush.cs" />
     <Compile Include="Configuration\Command.cs" />
     <Compile Include="Commands\Generic.cs" />
+    <Compile Include="Configuration\ConfigurationFile~Static.cs" />
     <Compile Include="Internal\ConditionParser.cs" />
     <Compile Include="Internal\KnownBuildTargets.cs" />
     <Compile Include="Configuration\PropertyCollectionExtension.cs" />
@@ -100,7 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Configuration\Configuration_v1.1.xsd">
+    <None Include="Configuration\Configuration_v1.2.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="PackageFiles\Install.ps1">

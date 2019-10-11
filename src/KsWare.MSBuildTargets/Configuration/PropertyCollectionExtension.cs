@@ -18,7 +18,7 @@ namespace KsWare.MSBuildTargets.Configuration {
 		}
 
 		public static string GetValue(this IEnumerable<ConfigurationFile.Property> col, string propertyName) {
-			return col.LastOrDefault(p => string.Compare(propertyName, p.Name, StringComparison.OrdinalIgnoreCase) == 0)?.Value;
+			return col.LastOrDefault(p => string.Compare(propertyName, p.Name, StringComparison.OrdinalIgnoreCase) == 0)?.GetValue();
 		}
 
 		public static bool HasProperty(this IEnumerable<ConfigurationFile.Property> col, string propertyName) {

@@ -38,9 +38,10 @@ namespace KsWare.MSBuildTargets.Commands {
 			var p = new Process {
 				StartInfo = new ProcessStartInfo {
 					FileName = cmdPath ?? cmd,
-					Arguments = Helper.JoinCommandLineArgs(args)
+					Arguments = Helper.JoinCommandLineArgs(Helper.UnescapeSecretArguments(args))
 				}
 			};
+			//TODO Log cmd Helper.JoinCommandLineArgs(Helper.HideSecretArguments(args)
 			p.Start();
 			p.WaitForExit();//TODO timeout
 			return p.ExitCode;

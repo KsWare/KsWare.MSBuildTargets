@@ -12,7 +12,7 @@ namespace KsWare.MSBuildTargets {
 	public class Program {
 		// TODO: load configuration file
 
-		public static ConfigurationFile Configuration = new ConfigurationFile();
+		public static ConfigurationFile Configuration=> ConfigurationFile.Instance;
 		public static bool TestMode = false;
 
 		//TODO remove debug code in Main
@@ -88,8 +88,7 @@ namespace KsWare.MSBuildTargets {
 			}
 
 			var directory = Path.GetDirectoryName(properties.GetValue(N.IDE.ProjectPath));
-			Configuration = Helper.Configuration=ConfigurationFile.LoadRecursive(directory);
-			Configuration.GlobalProperties = properties;
+			ConfigurationFile.LoadRecursive(directory, properties);
 
 			var commands = Configuration.GetCommands(properties.GetValue(N.Target), properties.GetValue(N.IDE.ConfigurationName), true);
 			foreach (var command in commands) {
