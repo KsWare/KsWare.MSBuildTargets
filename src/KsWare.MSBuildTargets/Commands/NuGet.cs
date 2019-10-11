@@ -24,7 +24,6 @@ namespace KsWare.MSBuildTargets.Commands {
 				}
 				case "push": { // https://docs.microsoft.com/en-us/nuget/tools/cli-ref-push
 					var push = new NuGetPush(args, Configuration);
-					var args0 = Helper.UnescapeSecretArguments(push.Arguments);
 					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(Helper.HideSecretArguments(push.Arguments)));
 					result = global::NuGet.CommandLine.Program.Main(Helper.UnescapeSecretArguments(push.Arguments));
 					break;
