@@ -49,6 +49,14 @@ namespace KsWare.MSBuildTargets.Configuration {
 				set => _value = value;
 			}
 
+
+			/// <summary>
+			/// Gets or sets a value indicating whether <see cref="Value"/> is a secret.
+			/// </summary>
+			/// <value><c>true</c> if <see cref="Value"/> is a secret; otherwise, <c>false</c>.</value>
+			[XmlAttribute("IsSecret")]
+			public bool IsSecret { get; set; }
+
 			/// <summary> Internal used by <seealso cref="XmlSerializer"/> </summary>
 			[EditorBrowsable(EditorBrowsableState.Never)]
 			public bool ShouldSerializePropertyValue() { return _value != null && _value.Contains("\""); }
@@ -60,6 +68,10 @@ namespace KsWare.MSBuildTargets.Configuration {
 			public override string ToString() {
 				var v = Value == null ? "NULL" : $"\"{Value}\"";
 				return $"{Name} = {v}";
+			}
+
+			public string GetValue() {
+				return IsSecret && Value != null ? "\u009E" + Value + "\u009C" : Value;
 			}
 		}
 

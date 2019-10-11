@@ -77,9 +77,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\NuGet.cs" />
     <Compile Include="Configuration\BuildConfiguration.cs" />
     <Compile Include="Commands\NuGetPush.cs" />
     <Compile Include="Configuration\Command.cs" />
+    <Compile Include="Commands\Generic.cs" />
+    <Compile Include="Configuration\ConfigurationFile~Static.cs" />
     <Compile Include="Internal\ConditionParser.cs" />
     <Compile Include="Internal\KnownBuildTargets.cs" />
     <Compile Include="Configuration\PropertyCollectionExtension.cs" />
@@ -87,6 +90,8 @@
     <Compile Include="Configuration\ConfigurationFile.cs" />
     <Compile Include="Commands\NuGetPack.cs" />
     <Compile Include="Internal\Helper.cs" />
+    <Compile Include="Internal\StringExtension.cs" />
+    <Compile Include="Internal\N.cs" />
     <Compile Include="Nuget\RestApiV3\Contracts\GetLatestVersionResult.cs" />
     <Compile Include="Nuget\RestApiV3\Contracts\SearchResult.cs" />
     <Compile Include="Nuget\RestApiV3\NuGetApiClientV3.cs" />
@@ -96,7 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Configuration\Configuration_v1.1.xsd">
+    <None Include="Configuration\Configuration_v1.2.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="PackageFiles\Install.ps1">
