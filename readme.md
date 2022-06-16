@@ -1,5 +1,9 @@
 ﻿# KsWare.MSBuildTargets
 
+**This project is no longer under active development**  
+The successor for SDk projects is [KsWare.BuildTools.IncrementVersion](https://github.com/SchreinerK/KsWare.BuildTools.IncrementVersion)
+<hr/>
+
 Executes commands on build. 
 
 With this package it is easy to build and create/publish the nuget package with auto increment version support.
