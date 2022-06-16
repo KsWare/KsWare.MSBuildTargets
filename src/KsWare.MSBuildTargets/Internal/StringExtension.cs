@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KsWare.MSBuildTargets.Internal {
 
@@ -32,7 +29,6 @@ namespace KsWare.MSBuildTargets.Internal {
 	}
 
 	public static class StringExtensions {
-
 
 		/// <summary>
 		/// Equals with StringComparison.OrdinalIgnoreCase

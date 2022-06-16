@@ -2,6 +2,7 @@
 using System.Linq;
 using KsWare.MSBuildTargets.Configuration;
 using KsWare.MSBuildTargets.Internal;
+using static KsWare.MSBuildTargets.Internal.Helper;
 
 namespace KsWare.MSBuildTargets.Commands {
 
@@ -16,22 +17,22 @@ namespace KsWare.MSBuildTargets.Commands {
 			switch (expandedArgs[0].ToLower()) {
 				case "pack": { // https://docs.microsoft.com/en-us/nuget/tools/cli-ref-pack
 					var pack = new NuGetPack(args, Configuration);
-					result = global::NuGet.CommandLine.Program.Main(Helper.UnescapeSecretArguments(pack.Arguments));
-					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(Helper.HideSecretArguments(pack.Arguments)));
+					result = global::NuGet.CommandLine.Program.Main(UnescapeSecretArguments(pack.Arguments));
+					Console.WriteLine("nuget " + JoinSpaceSeparatedVerbatimString(HideSecretArguments(pack.Arguments)));
 					if (result == 0)
-						Configuration.GlobalProperties.Set(N.NuGet.Push.PackagePath, Helper.GetPackagePath(Configuration));
+						Configuration.GlobalProperties.Set(N.NuGet.Push.PackagePath, GetPackagePath(Configuration));
 					break;
 				}
 				case "push": { // https://docs.microsoft.com/en-us/nuget/tools/cli-ref-push
 					var push = new NuGetPush(args, Configuration);
-					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(Helper.HideSecretArguments(push.Arguments)));
-					result = global::NuGet.CommandLine.Program.Main(Helper.UnescapeSecretArguments(push.Arguments));
+					Console.WriteLine("nuget " + JoinSpaceSeparatedVerbatimString(HideSecretArguments(push.Arguments)));
+					result = global::NuGet.CommandLine.Program.Main(UnescapeSecretArguments(push.Arguments));
 					break;
 				}
 				default: {
-					Helper.ExpandVariables(expandedArgs);
-					Console.WriteLine("nuget " + Helper.JoinSpaceSeparatedVerbatimString(expandedArgs));
-					result = global::NuGet.CommandLine.Program.Main(expandedArgs.ToArray());
+					ExpandVariables(expandedArgs);
+					Console.WriteLine("nuget " + JoinSpaceSeparatedVerbatimString(HideSecretArguments(expandedArgs)));
+					result = global::NuGet.CommandLine.Program.Main(UnescapeSecretArguments(expandedArgs));
 					break;
 				}
 			}
